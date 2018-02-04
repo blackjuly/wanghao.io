@@ -1,0 +1,103 @@
+# Site settings
+title: WangHao Blog
+SEOTitle: 王昊的博客 | WangHao Blog
+header-img: img/home-bg.jpg
+email: blackjuly@outlook.com
+description: "只有经理地狱的折磨，才有征服天堂的力量"
+keyword: "wanghao,WangHao,WangHao Blog,Android,JAVA,Web,Linux,个人网站，博客，互联网，移动端"
+url: "https://gitee.com/blackjuly_251"              # your host, for absolute URL
+baseurl: "/wanghao.io"         # for example, '/blog' if your blog hosted on 'host/blog'
+
+
+
+# SNS settings
+RSS: false
+#weibo_username:     wanghao
+zhihu_username:     wang-hao-38-69
+github_username:    blackjuly
+#twitter_username:  blackjuly
+#facebook_username:  blackjuly
+
+
+
+# Build settings
+# from 2016, 'pygments' is unsupported on GitHub Pages. Use 'rouge' for highlighting instead.
+highlighter: rouge
+permalink: pretty
+paginate: 10
+exclude: ["less","node_modules","Gruntfile.js","package.json","README.md"]
+anchorjs: true                          # if you want to customize anchor. check out line:181 of `post.html`
+
+
+
+# Gems
+# from PR#40, to support local preview for Jekyll 3.0
+gems: [jekyll-paginate]
+
+
+
+# Markdown settings
+# replace redcarpet to kramdown,
+# although redcarpet can auto highlight code, the lack of header-id make the catalog impossible, so I switch to kramdown
+# document: http://jekyllrb.com/docs/configuration/#kramdown
+markdown: kramdown
+kramdown:
+  input: GFM                            # use Github Flavored Markdown !important
+
+
+
+# Disqus settings
+#disqus_username: _your_disqus_short_name_
+
+# Duoshuo settings
+#duoshuo_username: huxblog
+# Share component is depend on Comment so we can NOT use share only.
+#duoshuo_share: true                     # set to false if you want to use Comment without Sharing
+
+# Support for LiveRe comments system.
+# You can get your uid from https://livere.com/insight/myCode (General web site)
+livere_uid: MTAyMC8zMzg1Ni8xMDQwOQ==
+
+
+
+# Analytics settings
+# Baidu Analytics
+#ba_track_id: 4cc1f2d8f3067386cc5cdb626a202900
+# Google Analytics
+#ga_track_id: 'UA-49627206-1'            # Format: UA-xxxxxx-xx
+#ga_domain: huangxuan.me
+
+
+
+# Sidebar settings
+sidebar: true                           # whether or not using Sidebar.
+sidebar-about-description: "我们这个世界的一个问题是，蠢人信誓旦旦，智人满腹狐疑。"
+sidebar-avatar: http://i2.bvimg.com/630355/9124908eba8c1d4a.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+
+
+
+# Featured Tags
+featured-tags: true                     # whether or not using Feature-Tags
+featured-condition-size: 1              # A tag will be featured if the size of it is more than this condition value
+
+
+
+# Friends
+friends: [
+    {
+        title: "Hux Blog",
+        href: "http://huangxuan.me"
+    },{
+        title: "Foo",
+        href: "#"
+    },{
+        title: "Bar",
+        href: "#"
+    },{
+        title: "Example Friends",
+        href: "#"
+    },{
+        title: "It helps SEO",
+        href: "#"
+    }
+]
