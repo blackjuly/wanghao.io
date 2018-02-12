@@ -1,0 +1,62 @@
+---
+layout:     post
+title:      "greendao踩坑收集"
+subtitle:   " \"greendao踩坑收集\""
+date:       2017-07-20 21:36:00
+author:     "wanghao"
+header-img: "img/post-bg-2015.jpg"
+tags:
+    - android
+    - greendao
+    
+---
+
+> “greendao的踩坑开始 ”
+
+
+greendao踩坑收集录：
+今天，在做司机pad的兼容性测试时，发现5.0以下手机，点击到需要数据库读取的相关类，会发生应用崩溃！
+控制台日志会输出：
+>E/AndroidRuntime: FATAL EXCEPTION: main
+>Java.lang.NoClassDefFoundError: >org.greenrobot.greendao.query.QueryBuilder 
+
+而此时的gradle配置为：
+主工程中：
+```
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.3'
+        //1.自动化maven打包插件 v1.6.4添加为开源框架而使用
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        //2.自动上传至Bintray平台插件  v1.6.4添加为开源框架而使用
+        classpath "com.jfrog.bintray.gradle:gradle-bintray-plugin:1.0"
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+        classpath 'org.greenrobot:greendao-gradle-plugin:3.0.0'
+    }
+}
+```
+app中：
+```
+compile 'org.greenrobot:greendao:3.0.1'
+compile 'org.greenrobot:greendao-generator:3.0.0'// 对于5.0下会出现问题
+```
+**解决方案：**
+移除compile 'org.greenrobot:greendao-generator:3.0.0'这句就不会再有问题了。
+
+**原因：**
+由于主工程的gradle的
+>classpath 'org.greenrobot:greendao-gradle-plugin:3.0.0'
+
+已经包含了greendao的所有插件，无需再次添加greendao-generator
+
+**PS：**
+
+目前已知有此类的问题版本
+>org.greenrobot:greendao-generator:3.2.2
+>'org.greenrobot:greendao-generator:3.0.0'
+
+都会有相同问题。
