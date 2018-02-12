@@ -22,7 +22,7 @@ greendao踩坑收集录：
 
 而此时的gradle配置为：
 主工程中：
-```
+```gradle
 buildscript {
     repositories {
         jcenter()
@@ -40,7 +40,7 @@ buildscript {
 }
 ```
 app中：
-```
+```gradle
 compile 'org.greenrobot:greendao:3.0.1'
 compile 'org.greenrobot:greendao-generator:3.0.0'// 对于5.0下会出现问题
 ```
