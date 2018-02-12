@@ -72,7 +72,7 @@ livere_uid: MTAyMC8zMzg1Ni8xMDQwOQ==
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "我们这个世界的一个问题是，蠢人信誓旦旦，智人满腹狐疑。"
-sidebar-avatar: http://i2.bvimg.com/630355/9124908eba8c1d4a.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
+sidebar-avatar: http://img.whdreamblog.cn/18-2-12/16729383.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 
 
