@@ -19,7 +19,8 @@ AndroidStudio提示：
 
 #### **导致问题：**
 此时使用bindView完全不起效果
-```java
+
+```Java
 public class MainActivity extends AppCompatActivity
 implements IWeatherInfoPage {
     @BindView(R.id.tv_content)
@@ -35,7 +36,9 @@ implements IWeatherInfoPage {
     }
 ```
 此时的Gradle配置为
+
 **project:**
+
 ```Groovy
 buildscript {
     repositories {
@@ -50,7 +53,9 @@ buildscript {
     }
 }
 ```
+
 **app:**
+
 ```Groovy
 apply plugin: 'com.android.application'
 apply plugin: 'com.neenbedankt.android-apt'
