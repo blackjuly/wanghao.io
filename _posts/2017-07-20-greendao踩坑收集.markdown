@@ -23,7 +23,7 @@ greendao踩坑收集录：
 
 而此时的gradle配置为：
 主工程中：
-```gradle
+```Groovy
 buildscript {
     repositories {
         jcenter()
