@@ -1,0 +1,106 @@
+---
+layout:     post
+title:      "TextView单行居中，多行居左"
+subtitle:   " \"TextView单行居中，多行居左\""
+date:       2017-06-15 20:36:00
+author:     "wanghao"
+header-img: "img/android-for-wallpaper.png"
+tags:
+    - Android
+    - 笔记
+    
+---
+
+
+#### TextView自定义单行居中，多行向左对齐总结
+在司机pad的制作中，UI对于文字提示的展示，要求有这样的需求：
+> 文字展示上，当文字以单行出现的时候的，文字可以居中显示，而文字多行显示时，文字可以居左对齐
+
+解决方案1：
+> 用多个textView设置一类居中，一类居左来解决，用数量达到目的
+
+但是，带来的弊端：
+> 开发中对于文字要进行大量的预判文字长度以及行数的操作，很显然会耗费很多精力在这上面，得不偿失
+
+所以，放弃了这种不是很合适的方案,然后考虑第二种方案，尝试使用代码在textView中直接使用
+
+```JAVA
+textview.setText(“Some text”);
+int lineCount = textview.getLineCount();//行数
+
+```
+
+获取行数后，动态判断应该是居中，还是居左对齐；但是，当获取后却发现，使用getLineCount()得到的行数为0，查看源码：
+
+```JAVA
+    /** 
+     * Return the number of lines of text, or 0 if the internal     Layout        
+     * has not  been built. 
+     */  
+    public int getLineCount() {  
+        return mLayout != null ? mLayout.getLineCount() : 0;  
+    }  
+
+```
+
+当setText时，view还没有渲染，获取的行数默认只能为0，不过通过异步可以获取
+
+```JAVA
+
+textview.setText(“Some text”);
+textview.post(new Runnable() {
+    @Override
+    public void run() {
+        int lineCount = textview.getLineCount();//行数
+    }
+});
+
+```
+弊端：
+> 但是，仅仅是这样动态设置textView，反复重复相同的工作，毫无意义并且显得非常笨拙，同时，代码也暴露在调用者部分，难以管控！
+
+所以，开始客户化textView,在view内部进行行数获取和居中居左的设置：
+
+```JAVA
+  /**忽略部分**/
+/**
+ * <pre>
+ *     desc   : 为解决弹窗的内容textView单行居中对齐，多行居中对齐
+ *     version: v1.0
+ * </pre>
+ */
+
+public class AutoAlignTextView extends EhiBaseTextView {
+  private OnLayoutListener onLayoutListener;
+
+  public void setOnLayoutListener(OnLayoutListener onLayoutListener) {
+    this.onLayoutListener = onLayoutListener;
+  }
+
+  /**
+   * 布局监听器，解决Return the number of lines of text, or 0 if the internal Layout has not been built.的问题
+   * 未布局直接获取行号会返回0,故监听布局完成，再获取行号
+   */
+  public interface OnLayoutListener {
+    void onLayout(TextView textView);
+  }
+    /**忽略部分**/
+  @Override
+  protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
+    super.onLayout(changed, left, top, right, bottom);
+    if (onLayoutListener == null) {//当布局监听为空时
+      //默认 单行居中对齐，多行居左对齐
+      int line = this.getLineCount();
+      if (line <= 1) {
+        this.setGravity(Gravity.CENTER);
+      } else {
+        this.setGravity(Gravity.START);
+      }
+      return;
+    }
+    onLayoutListener.onLayout(this);
+  }
+}
+
+```
+在布局到onLayout时，getLineCount()已经可以获取行数，所以选择在这个位置进行修改重写，这样保证封装性，减少了重复的代码量
