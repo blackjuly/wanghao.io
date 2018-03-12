@@ -4,7 +4,7 @@ title:      "AutoCompleteTextView 自定义搜索控件"
 subtitle:   "AutoCompleteTextView 自定义搜索控件，通过网络获取数据"
 date:       2017-09-10 20:15:00
 author:     "wanghao"
-header-img: "img/post-bg-js-version.jpg"
+header-img: "img/post-bg-android-autocompletTextview.jpg"
 tags:
     - AutoCompleteTextView
     - Android
@@ -212,6 +212,7 @@ public class SearchAddressDialog extends EhiNoFixPlaceDialog {
 自定义思路十分简单粗暴：
 1. 将AutoCompleteTextView和取消button定义与布局，封装到一个自定义view中
 2. 在使用searchView的类中添加TextWatcher()
+
 ```java
 searchView.setSearchBoxTextWatcher(new TextWatcher() {
             @Override
@@ -233,6 +234,7 @@ searchView.setSearchBoxTextWatcher(new TextWatcher() {
             }
         });
 ```
+
 3. 通过网络获取定位数据，更新内容
 
 ```java
@@ -289,7 +291,9 @@ searchView.setSearchBoxTextWatcher(new TextWatcher() {
 
 ```
 ### 注意点
-1.必须在设置adapter,后再次通知一次数据更新(原因仍在探究)
+
+1. 必须在设置adapter,后再次通知一次数据更新(原因仍在探究)
+
 ```java
 
  public void setAdapter(@NonNull ArrayAdapter<T> adapter) {
@@ -299,7 +303,7 @@ searchView.setSearchBoxTextWatcher(new TextWatcher() {
     }
 
 ```
-2.使用的实体类，需要重写toString部分
+2. 使用的实体类，需要重写toString部分
 ```java
 public static class EhiPoiInfo extends PoiInfo {
         @Override
@@ -315,6 +319,7 @@ public static class EhiPoiInfo extends PoiInfo {
 
 ```
 由于我们使用的autoCompletTextView的使用的adapter是需要实现Filterable，去进行模糊搜索的实现
+
 ```java
 public interface Filterable {
    
@@ -355,7 +360,9 @@ public class ArrayAdapter<T> extends BaseAdapter implements Filterable, ThemedSp
 }
 ```
 而重写toString()的作用就在于，作用于arrayAdapter中的自定义filter()
+
 ```java
+
 private class ArrayFilter extends Filter {
         @Override
         protected FilterResults performFiltering(CharSequence prefix) {
