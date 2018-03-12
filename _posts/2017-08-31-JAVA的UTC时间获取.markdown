@@ -11,7 +11,7 @@ tags:
     
 ---
 
-> “在编写android的网络工具类时，需要获取时间戳，为避免多时区的问题，开始使用UTC时间。”
+> “在编写android的网络工具类时，需要获取时间戳，为避免多时区的问题，开始使用UTC时间秒数作为时间戳。”
 
 
 
@@ -31,4 +31,4 @@ cal.getTimeInMillis();
 根据文档描述：
 >@return the current time as UTC milliseconds from the epoch.
 
-即，通过**cal.getTimeInMillis();**已经是获取的utc秒速
+即，通过**cal.getTimeInMillis();**已经是获取的utc秒数
