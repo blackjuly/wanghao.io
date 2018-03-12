@@ -17,7 +17,7 @@ tags:
 
 **UTC时间的获取的应用场景：**
 
-本次加密中，在header部分使用了时间戳，用于sha256加密，所以为在后期的业务拓展的考虑，进行国际租车时，可能接收到多个时区的时间戳，这样可能会有问题，故统一使用UTC时间！
+本次加密中，在header部分使用了时间戳，用于sha256加密，所以为在后期的业务拓展的考虑，进行国际租车时，可能接收到多个时区的时间戳，这样可能会有问题，故统一使用UTC毫秒数！
 
 
 记录获取毫秒数方法
@@ -31,4 +31,4 @@ cal.getTimeInMillis();
 根据文档描述：
 >@return the current time as UTC milliseconds from the epoch.
 
-即，通过**cal.getTimeInMillis();**已经是获取的utc时间
+即，通过**cal.getTimeInMillis();**已经是获取的utc秒速
