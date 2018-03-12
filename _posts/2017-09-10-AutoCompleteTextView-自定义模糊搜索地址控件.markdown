@@ -88,6 +88,14 @@ public class EhiSearchView<T> extends FrameLayout {
 ```
 搜索view的使用代码
 ```java
+/**
+  * Adatper部分
+  **/
+public abstract class BaseEhiAdapter<T> extends ArrayAdapter<T> {
+    /**
+      * 代码部分省略
+      */
+}  
 public class SearchAddressDialog extends EhiNoFixPlaceDialog {
     private EhiSearchView<PoiInfo> searchView;
     private PoiSearch poiSearch;
@@ -225,8 +233,196 @@ searchView.setSearchBoxTextWatcher(new TextWatcher() {
             }
         });
 ```
+3. 通过网络获取定位数据，更新内容
 
+```java
 
+  private void initMapSearchConfig() {
+        poiSearch = PoiSearch.newInstance();
+        poiSearch.setOnGetPoiSearchResultListener(new OnGetPoiSearchResultListener() {
+            @Override
+            public void onGetPoiResult(PoiResult poiResult) {
+                if (getActivity() == null || isDetached()) {
+                    return;
+                }
+                if (poiResult.error != SearchResult.ERRORNO.NO_ERROR) {//包含错误不显示
+                    return;
+                }
+                initAdapter(EhiPoiInfo.convertPoiInfo(poiResult.getAllPoi()));
+            }
 
+            @Override
+            public void onGetPoiDetailResult(PoiDetailResult poiDetailResult) {
+                //do nothing
+            }
 
+            @Override
+            public void onGetPoiIndoorResult(PoiIndoorResult poiIndoorResult) {
+                //do nothing
+            }
+        });
+    }
+
+     /**
+     * 初始化适配器
+     *
+     * @param poiInfoList 搜索信息
+     */
+    private void initAdapter(List<EhiPoiInfo> poiInfoList) {
+
+        poiAdapter = new PoiAdapter(poiInfoList, getActivity());
+        searchView.setAdapter(poiAdapter);
+    }
+
+   
+    public static class EhiPoiInfo extends PoiInfo {
+        @Override
+        public String toString() {
+            return this.name;
+        }
+
+        static List<EhiPoiInfo> convertPoiInfo(List<PoiInfo> poiInfoList) {
+            String json = GsonUtil.toJson(poiInfoList);
+            return GsonUtil.fromJsonList(json, EhiPoiInfo.class);
+        }
+    }
+
+```
+### 注意点
+1.必须在设置adapter,后再次通知一次数据更新(原因仍在探究)
+```java
+
+ public void setAdapter(@NonNull ArrayAdapter<T> adapter) {
+    this.adapter = adapter;
+    acTvSearchBox.setAdapter(adapter);
+    adapter.notifyDataSetChanged();//此处必须添加通知数据更新
+    }
+
+```
+2.使用的实体类，需要重写toString部分
+```java
+public static class EhiPoiInfo extends PoiInfo {
+        @Override
+        public String toString() {
+            return this.name;
+        }
+
+        static List<EhiPoiInfo> convertPoiInfo(List<PoiInfo> poiInfoList) {
+            String json = GsonUtil.toJson(poiInfoList);
+            return GsonUtil.fromJsonList(json, EhiPoiInfo.class);
+        }
+    }
+
+```
+由于我们使用的autoCompletTextView的使用的adapter是需要实现Filterable，去进行模糊搜索的实现
+```java
+public interface Filterable {
+   
+    Filter getFilter();
+}
+
+ public <T extends ListAdapter & Filterable> void setAdapter(T adapter) {
+        if (mObserver == null) {
+            mObserver = new PopupDataSetObserver(this);
+        } else if (mAdapter != null) {
+            mAdapter.unregisterDataSetObserver(mObserver);
+        }
+        mAdapter = adapter;
+        if (mAdapter != null) {
+            //noinspection unchecked
+            mFilter = ((Filterable) mAdapter).getFilter();
+            adapter.registerDataSetObserver(mObserver);
+        } else {
+            mFilter = null;
+        }
+
+        mPopup.setAdapter(mAdapter);
+    }
+
+```
+所以我们需要我们的adapter去能够自己完成 Filter getFilter();，但是其实我认为没有必要反复造轮子，因为简单的文字检索android的arrayAdapater当中已经实现
+
+```java
+
+public class ArrayAdapter<T> extends BaseAdapter implements Filterable, ThemedSpinnerAdapter {
+ @Override
+    public @NonNull Filter getFilter() {
+        if (mFilter == null) {
+            mFilter = new ArrayFilter();
+        }
+        return mFilter;
+    }
+}
+```
+而重写toString()的作用就在于，作用于arrayAdapter中的自定义filter()
+```java
+private class ArrayFilter extends Filter {
+        @Override
+        protected FilterResults performFiltering(CharSequence prefix) {
+            final FilterResults results = new FilterResults();
+
+            if (mOriginalValues == null) {
+                synchronized (mLock) {
+                    mOriginalValues = new ArrayList<>(mObjects);
+                }
+            }
+
+            if (prefix == null || prefix.length() == 0) {
+                final ArrayList<T> list;
+                synchronized (mLock) {
+                    list = new ArrayList<>(mOriginalValues);
+                }
+                results.values = list;
+                results.count = list.size();
+            } else {
+                final String prefixString = prefix.toString().toLowerCase();
+
+                final ArrayList<T> values;
+                synchronized (mLock) {
+                    values = new ArrayList<>(mOriginalValues);
+                }
+
+                final int count = values.size();
+                final ArrayList<T> newValues = new ArrayList<>();
+
+                for (int i = 0; i < count; i++) {
+                    final T value = values.get(i);
+                    //此处使用 toString的文本进行匹配
+                    final String valueText = value.toString().toLowerCase();
+
+                    // First match against the whole, non-splitted value
+                    if (valueText.startsWith(prefixString)) {
+                        newValues.add(value);
+                    } else {
+                        final String[] words = valueText.split(" ");
+                        for (String word : words) {
+                            if (word.startsWith(prefixString)) {
+                                newValues.add(value);
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                results.values = newValues;
+                results.count = newValues.size();
+            }
+
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            //noinspection unchecked
+            mObjects = (List<T>) results.values;
+            if (results.count > 0) {
+                notifyDataSetChanged();
+            } else {
+                notifyDataSetInvalidated();
+            }
+        }
+    }
+```
+
+至此，一个组件的分析就完成了。
 
