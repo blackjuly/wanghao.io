@@ -4,7 +4,7 @@ title:      "TextView单行居中，多行居左"
 subtitle:   " \"TextView单行居中，多行居左\""
 date:       2017-06-15 20:36:00
 author:     "wanghao"
-header-img: "img/android-for-wallpaper.png"
+header-img: "img/android-for-wallpaper.jpg"
 tags:
     - Android
     - 笔记
