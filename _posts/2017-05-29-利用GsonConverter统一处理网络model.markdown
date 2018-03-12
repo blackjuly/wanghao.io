@@ -155,6 +155,7 @@ public class NullResponseDataIOException extends ApiIOException {
 ```
 ## 踩坑
 1. data类型为String时
+
 ```java
  if (type == String.class) {//当类型为String直接返回，不用json进行解析，避免字符串中的特殊字符引发json解析报错（此处有坑）// 
             T t = (T) realData;
