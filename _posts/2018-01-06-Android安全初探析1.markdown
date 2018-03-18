@@ -29,8 +29,8 @@ tags:
 1. app一定要进行签名和加固，避免hacker可以直接利用jeb类似的工具进行反编译，查看源代码
 
 2. 敏感页面的hardcode危害巨大
-```java
 
+```java
 private void dealLogin(final Button button) {
         button.setOnClickListener(new OnClickListener() {
 
@@ -51,6 +51,7 @@ private void dealLogin(final Button button) {
 
 2.防截屏防止录屏
 一些中毒的手机会被在后台开启截屏或者录屏操作，所以我们在一些敏感的例如支付或者登陆界面，建议一定开始防止录屏设置
+
 ```java
     public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -69,9 +70,10 @@ private void dealLogin(final Button button) {
 ![透明UI覆盖](/img/in-post/post-android-hacker/hack-interface-hoding.JPG)
 
 解决方案：
-a. 启动一个service时刻检查栈顶的activity的包名
+A.启动一个service时刻检查栈顶的activity的包名
 非自己的app的弹窗提示
-b. 在onActivityPaused使用handler发生一个message
+B.在onActivityPaused使用handler发生一个message
+
 ```java
   final int mNum = getNextNum();
                 Message message = Message.obtain();
@@ -81,6 +83,7 @@ b. 在onActivityPaused使用handler发生一个message
 ```
 在onActivityResumed中判断，是自己的界面就取消message
 不是则弹窗处于后台警告
+
 ```java
  registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             private int num = 0;
