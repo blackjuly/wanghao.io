@@ -25,7 +25,7 @@ tags:
 **实现功能**
 1. 脚本多机型同时运行
 2. 报错记录日志，并上传服务端查看
-3. 报错截图
+3. 报错截图上传
 4. 测试任务调度配置
 5. 方法封装
 6. 静态化配置文件
@@ -416,24 +416,19 @@ public class LuckyFrameProcess extends TestProcessAdapter{
 		return waitCondition(condition, time, needShot);
 	}
 ```
-
-
-
- 3. appium 和 seleium 共同使用时会出现类型转换错误，解决方法是保证appium和seleium的maven依赖一致
-
-
+3. appium 和 seleium 共同使用时会出现类型转换错误，解决方法是保证appium和seleium的maven依赖一致
 
 4. adb启动报错
+>adb server version (31) doesn't match this client (39); killing...
 
-adb server version (31) doesn't match this client (39); killing...
-		could not read ok from ADB Server
-	原因：adb 5037端口被占用（常被360占用！！）
+>could not read ok from ADB Server
 
-	cmd输入：netstat -aon|findstr 5037，然后在任务管理器中干掉对应的进程，重启adb即可
+原因：adb 5037端口被占用（常被360占用！！）
+cmd输入：netstat -aon|findstr 5037，然后在任务管理器中干掉对应的进程，重启adb即可
 
- 5. appium的UiAutomator2-driver可以捕获到Toast，但UiAutomator2只支持Android5.0+
-	
-[UiAutomator2] Error: UIAutomation2 is only supported since Android 5.0 (Lollipop). 
+5. appium的UiAutomator2-driver可以捕获到Toast，但UiAutomator2只支持Android5.0+
+
+>[UiAutomator2] Error: UIAutomation2 is only supported since Android 5.0 (Lollipop).
 You could still use other supported backends in order to automate older Android versions.
 
 
