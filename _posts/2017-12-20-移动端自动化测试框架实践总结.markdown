@@ -4,7 +4,7 @@ title:      "移动端自动化测试框架实践总结"
 subtitle:   " \"移动端自动化测试框架实践总结\""
 date:       2017-12-20 22:44:00
 author:     "wanghao"
-header-img: "img/post-android-hack.jpg"
+header-img: "img/post-bg-appium.jpg"
 tags:
     - Android
     - 自动化测试
@@ -19,7 +19,8 @@ tags:
 2. appium/seleium
 3. spring
 4. log4j
-5. luckyFrame(开源项目)
+5. maven
+6. luckyFrame(开源项目)
 
 **实现功能**
 1. 脚本双机型同时运行
