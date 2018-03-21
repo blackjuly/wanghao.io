@@ -24,12 +24,22 @@ tags:
 
 **实现功能**
 1. 脚本多机型同时运行
+<<<<<<< HEAD
 2. 报错记录日志，报错截图一并上传服务端查看
 3. 测试任务调度配置
 4. 方法封装
 5. 静态化配置文件
 6. 支持参数化测试
 7. 发邮件通知
+=======
+2. 报错记录日志，并上传服务端查看
+3. 报错截图上传
+4. 测试任务调度配置
+5. 方法封装
+6. 静态化配置文件
+7. 支持参数化测试
+8. 发邮件通知
+>>>>>>> 7f37b5a6cf35f9f590d5ff3a3e84c05f7353c599
 
 **框架讲解**
 框架结构图：
@@ -437,15 +447,17 @@ PS：luckyFrame本身不带图片上传，以及打印手机日志功能；属�
 
 - adb启动报错
 
-adb server version (31) doesn't match this client (39); killing...
-		could not read ok from ADB Server
-	原因：adb 5037端口被占用（常被360占用！！）
 
-	cmd输入：netstat -aon|findstr 5037，然后在任务管理器中干掉对应的进程，重启adb即可
+>could not read ok from ADB Server
+
+原因：adb 5037端口被占用（常被360占用！！）
+cmd输入：netstat -aon|findstr 5037，然后在任务管理器中干掉对应的进程，重启adb即可
+
 
 - appium的UiAutomator2-driver可以捕获到Toast，但UiAutomator2只支持Android5.0+
-	
-[UiAutomator2] Error: UIAutomation2 is only supported since Android 5.0 (Lollipop). 
+
+>[UiAutomator2] Error: UIAutomation2 is only supported since Android 5.0 (Lollipop).
+
 You could still use other supported backends in order to automate older Android versions.
 
 
