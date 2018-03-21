@@ -24,13 +24,12 @@ tags:
 
 **实现功能**
 1. 脚本多机型同时运行
-2. 报错记录日志，并上传服务端查看
-3. 报错截图
-4. 测试任务调度配置
-5. 方法封装
-6. 静态化配置文件
-7. 支持参数化测试
-8. 发邮件通知
+2. 报错记录日志，报错截图一并上传服务端查看
+3. 测试任务调度配置
+4. 方法封装
+5. 静态化配置文件
+6. 支持参数化测试
+7. 发邮件通知
 
 **框架讲解**
 框架结构图：
@@ -107,7 +106,6 @@ public class RunTestNGXML{
 执行对应的脚本文件，为了兼容我们旧版的小框架的一些app的自动化代码，以及web网页的的代码，对于之前的测试用例基类进行了整理和分类,由框架结构图可以看到我们基类进行了分层
 ```java
 //基础测试基类
-@Listeners({ HTMLReporter.class, JUnitXMLReporter.class })
 public abstract class TestCaseBase{
 	
 	
@@ -261,8 +259,24 @@ public abstract class OperateBase implements IOperate{
 而框架本身提供的却并不只有这一部分的内容，我们还提供了监控机制，和报错后对于错误的推断还原功能,对于报错情况的一个汇总情况的反馈机制，将日志和未通过用例还有截图都返回给LukyFrame
 ![失败截图](/img/in-post/post-appium/post-bg-testcasefail.JPG)
 ![测试用例汇总](/img/in-post/post-appium/post-bg-alltestcase.JPG)
+![测试用例日志](/img/in-post/post-appium/post-bg-log.JPG)
 
-代码简单展示
+我们先定义一个testNg的监听器类,处理所有种类的监听
+```java
+public class TestListener implements IInvokedMethodListener,ISuiteListener,ITestListener,IReporter{
+	//测试过程处理，尽量放在子线程中处理，防止卡死测试流程
+	private ITestProcess testProcess;
+	 //部分代码已忽略
+	 public TestListener(ITestProcess testProcess){
+		this.testProcess = testProcess;
+	}
+	@Override
+	public void generateReport(List<XmlSuite> xmlSuites, List<ISuite> suites, String outputDirectory) {
+		testProcess.generateReport(xmlSuites, suites, outputDirectory);
+	}
+}
+```
+然后，我们自定义一个对外的 ITestProcess接口类，将这个传入刚刚的TestListener之中，将监听器获取到的数据通过我们自定义的接口类发放出去，然后自定义一个包含luckyFrame内容的实现类，将内容进行回传到线上，保证隔绝开来，未来不使用luckyFrame也能自由使用替换其他测试平台
 ```java
 public interface ITestProcess {
     //部分代码已忽略
@@ -306,10 +320,10 @@ public class LuckyFrameProcess extends TestProcessAdapter{
 	}
 	
 ```
-
+PS：luckyFrame本身不带图片上传，以及打印手机日志功能；属于我们的客户化开发功能
 
 **踩过的坑**
-1. 查找元素的代码封装
+- 查找元素的代码封装
 旧版的元素查找五花八门且调用时浪费时间
 ```java
 /**
@@ -350,7 +364,7 @@ public class LuckyFrameProcess extends TestProcessAdapter{
 		return null;
 	}
 ```
-2.多种条件下出现不同的元素的判断
+- 多种条件下出现不同的元素的判断
 旧版元素等待代码
 ```java
 /**
@@ -417,13 +431,11 @@ public class LuckyFrameProcess extends TestProcessAdapter{
 	}
 ```
 
-
-
- 3. appium 和 seleium 共同使用时会出现类型转换错误，解决方法是保证appium和seleium的maven依赖一致
+ - appium 和 seleium 共同使用时会出现类型转换错误，解决方法是保证appium和seleium的maven依赖一致
 
 
 
-4. adb启动报错
+- adb启动报错
 
 adb server version (31) doesn't match this client (39); killing...
 		could not read ok from ADB Server
@@ -431,7 +443,7 @@ adb server version (31) doesn't match this client (39); killing...
 
 	cmd输入：netstat -aon|findstr 5037，然后在任务管理器中干掉对应的进程，重启adb即可
 
- 5. appium的UiAutomator2-driver可以捕获到Toast，但UiAutomator2只支持Android5.0+
+- appium的UiAutomator2-driver可以捕获到Toast，但UiAutomator2只支持Android5.0+
 	
 [UiAutomator2] Error: UIAutomation2 is only supported since Android 5.0 (Lollipop). 
 You could still use other supported backends in order to automate older Android versions.
