@@ -344,6 +344,7 @@ PS：luckyFrame本身不带图片上传，以及打印手机日志功能；属�
 由代码可以看到，用户需要自己判断使用哪种方式查找，方便程度和原生毫无差别
 
 优化后,将string类型的统一处理，只用一个方法，自动判断xpath,id之类的string文本
+
 ```java
 @Override
 	public WebElement getElement(String by) {
@@ -365,12 +366,12 @@ PS：luckyFrame本身不带图片上传，以及打印手机日志功能；属�
 		return null;
 	}
 ```
-- 多种条件下出现不同的元素的判断
-旧版元素等待代码
+多种条件下出现不同的元素的判断，旧版元素等待代码
+
 ```java
 /**
-	 * 显示等待，等待Id对应的控件出现time秒，一出现马上返回，time秒不出现也返回 默认等待20秒
-	 */
+  * 显示等待，等待Id对应的控件出现time秒，一出现马上返回，time秒不出现也返回 默认等待20秒
+  */
 	public WebElement waitAuto(By by, int time) {
 		WebElement webElement = null;
 		try {
@@ -384,6 +385,7 @@ PS：luckyFrame本身不带图片上传，以及打印手机日志功能；属�
 	}
 ```
 新版实现,可以判断多种元素在不同情况下的出现，并进行相应的处理（需要贴调用实现类）
+
 ```java
 **
 	 * 判断多个元素，等待其中某一个元素出现
