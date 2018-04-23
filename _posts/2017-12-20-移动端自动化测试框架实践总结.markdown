@@ -324,8 +324,8 @@ public class LuckyFrameProcess extends TestProcessAdapter{
 PS：luckyFrame本身不带图片上传，以及打印手机日志功能；属于我们的客户化开发功能
 
 **踩过的坑**
-- 查找元素的代码封装
-旧版的元素查找五花八门且调用时浪费时间
+- 查找元素的代码封装，旧版的元素查找五花八门且调用时浪费时间
+
 ```java
 /**
 	 * 通过id获取组件文字
