@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Android style & Theme 再探析"
-subtitle:   " \"你真的懂Style和Theme\""
+subtitle:   " \"你真的懂Style和Theme吗\""
 date:       2018-08-15 20:25:00
 author:     "wanghao"
 header-img: "img/post-bg-js-module.jpg"
@@ -15,51 +15,14 @@ tags:
 
 
 **Android Theme目前的应用情况**
-一般情况下，我了解到的和平常搜索到的应用场景，一般情况都以处理window的标题栏和背景透明一类的内容
+一般情况下，我了解到的和平常搜索到的应用场景，一般情况都以处理window的标题栏和背景透明一类的内容，但我经过学习探究后才发现，我们对于这类的基础知识过于的不重视，其实Theme配合style可以做到很好的管控我们UI，做到皮肤切换，日夜间模式
 
-```java
-private void dealLogin(final Button button) {
-        button.setOnClickListener(new OnClickListener() {
+![安全点评估点list1](https://upload-images.jianshu.io/upload_images/4049054-0efe6abd161229a7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-            @Override
-            public void onClick(View v) {
-                    if (userID == null || userID.trim().length() == 0) {
-                        DialogUtils.showDialog(LoginAbstractActivity.this, "输入错误", "用户名不能为空");
-                    } else if (passWord == null || passWord.trim().length() == 0) {
-                        DialogUtils.showDialog(LoginAbstractActivity.this, "输入错误", "密码不能为空");
-                    } 
-            }
-        });
-    }
-```
-类似这种敏感页面的hardcode，就算在进行代码混淆也无法将中文混淆掉，很容易被hacker推断出当前处于怎样的界面，就像我们的登录，仔细阅读，很容易让hacker得到登录的破解逻辑！
+**Android Theme和Style解决的问题**
 
-所以，小伙伴们我们的偷懒的hardcode有时也许不止是国际化不容易，甚至可能造成可怕的安全问题哦！
+将默认的view修改为指定样式的样板代码，
 
-2.防截屏防止录屏
-一些中毒的手机会被在后台开启截屏或者录屏操作，所以我们在一些敏感的例如支付或者登陆界面，建议一定开始防止录屏设置
-
-```java
-    public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    //开启设置
-    getWindow().setFlags(LayoutParams.FLAG_SECURE, LayoutParams.FLAG_SECURE);
-
-    setContentView(R.layout.main);
-  }
-```
-3. 清单文件的
-> android:allowBackup = false
-
-保证软件中的用户数据不会被通过adb restore被盗取出来
-
-4. 登陆界面使用透明UI覆盖，进行钓取用户数据
-![透明UI覆盖](/img/in-post/post-android-hacker/hack-interface-hoding.JPG)
-
-解决方案：
-A.启动一个service时刻检查栈顶的activity的包名
-非自己的app的弹窗提示
-B.在onActivityPaused使用handler发生一个message
 
 ```java
   final int mNum = getNextNum();
