@@ -17,23 +17,17 @@ tags:
 **Android Theme目前的应用情况**
 一般情况下，我了解到的和平常搜索到的应用场景，一般情况都以处理window的标题栏和背景透明一类的内容，但我经过学习探究后才发现，我们对于这类的基础知识过于的不重视，其实Theme配合style可以做到很好的管控我们UI，做到皮肤切换，日夜间模式
 
-![安全点评估点list1](https://upload-images.jianshu.io/upload_images/4049054-0efe6abd161229a7.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-**Android Theme和Style解决的问题**
+**Android Theme配合Style解决的问题**
 
-将默认的view修改为指定样式的样板代码，
+1. 将默认的view样式修改为指定样式的样板代码，耗费时间却没有任何的技术含量，以前也会尝试使用style或者自定义组件去解决这样的问题，但这并不是最恰当的实现，后问笔者会阐述使用这种方式遇到的问题
+
+2. 在笔者公司UI资源紧张的情况，无法为所有app提供样式设计；内部应用直接由开发自己处理UI样式，导致app样式都比较混乱
+
+3. 在以前笔者没有重视style和Theme的配合使用，单单使用style管控UI元素，在app想实现日间模式，夜间模式，切换皮肤 等功能，变的异常困难。
 
 
-```java
-  final int mNum = getNextNum();
-                Message message = Message.obtain();
-                message.arg1 = mNum;
-                h.sendMessageDelayed(message, 1200);
-                Context context = activity.getApplicationContext();
-```
-在onActivityResumed中判断，是自己的界面就取消message
-不是则弹窗处于后台警告
-
+**Android Theme 和 Style
 ```java
  registerActivityLifecycleCallbacks(new ActivityLifecycleCallbacks() {
             private int num = 0;
