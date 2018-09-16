@@ -25,6 +25,7 @@ tags:
 名格式采用以下规则：
 模块名_逻辑名称_颜色
 如：
+
 ```xml
 <color name="module_btn_bg_color">#33b5e5e5</color>
 ```
@@ -32,10 +33,12 @@ tags:
 对于模块的颜色规范我们采用这样的方式，完全没有问题的，并且在后期的国际化中；这样的形式完全也是没有问题的，但是对于一些常用的主题颜色，会一直在很多组件上大量使用，反复重复的颜色；一般这样情况我们都会进行提取，目前见到常用有两种：
 
 1. color命名格式：color_16进制颜色值，如红色 color_ff0000
+
 ```xml
 <color name="color_FFFFFF">#FFFFFF</color>
 ```
 2. color命名格式：直接用英文，如果颜色多相近则，颜色值后面加数字 red1，如红色 red1
+
 ```xml
 <color name="red1">#FFFFFF</color>
 ```
