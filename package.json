@@ -2,7 +2,7 @@
     "name": "WangHao-blog",
     "title": "WangHao Blog",
     "version": "1.0.1",
-    "homepage": "http://blackjuly_251.gitee.io/wanghao.io/",
+    "homepage": "http://www.whdreamblog.cn/",
     "author": "WangHao",
     "devDependencies": {
         "grunt": "~0.4.5",
@@ -13,7 +13,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/Huxpro/huxpro.github.io"
+        "url": "https://coding.net/u/BlackJuly/p/wanghao.io/git"
     },
     "scripts": {
         "preview": "cd _site; python -m SimpleHTTPServer 8020",
