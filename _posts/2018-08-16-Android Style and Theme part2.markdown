@@ -111,6 +111,123 @@ colors.xml文件部分代码展示：
 
 ## **Material Design详解**
 
+### **UI调色板 Color Palette**
 
+#### **设计师使用部分**
 
+> 调色板以一些基础色为基准，通过填充光谱来为Android、Web和iOS环境提供一套完整可用的颜色。基础色的饱和度是500。
 
+![material_design ui调色板](http://design.1sters.com/material_design/style/images/style-color-palette-1.png)
+
+这部分虽然是放置在设计模块用于设计师去查看的，但是，实际上我们的对于我们开发使用也有着影响
+
+#### **开发使用展示**
+**开发示例**
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!-- google's material design colours from 
+http://www.google.com/design/spec/style/color.html#color-ui-color-palette -->
+
+    <!--reds-->
+    <color name="md_red_50">#FFEBEE</color>
+    <color name="md_red_100">#FFCDD2</color>
+    <color name="md_red_200">#EF9A9A</color>
+    <color name="md_red_300">#E57373</color>
+    <color name="md_red_400">#EF5350</color>
+    <color name="md_red_500">#F44336</color>
+    <color name="md_red_600">#E53935</color>
+    <color name="md_red_700">#D32F2F</color>
+    <color name="md_red_800">#C62828</color>
+    <color name="md_red_900">#B71C1C</color>
+    <color name="md_red_A100">#FF8A80</color>
+    <color name="md_red_A200">#FF5252</color>
+    <color name="md_red_A400">#FF1744</color>
+    <color name="md_red_A700">#D50000</color>
+    <!--部分代码隐藏-->
+</resources>    
+
+```
+
+#### **开发使用分析**
+首先，可以看的出我们的开发使用的是笔者在上面提及的第二种颜色值的命名，但是与我们的直接无脑添加数字又不一样的，颜色取值完全根据规范[material 调色板](https://material.io/design/color/the-color-system.html#color-usage-palettes)
+
+**优势**
+1. 使得我们颜色数量一定时间内是可控的
+2. 它采用饱和度数值做为命名的形式将 **red_100** 和 **#FFCDD2** 关联起来使得UI和开发团队内部讨论颜色全部都有了一个统一名称指代，且以颜色英文开头有解释性
+3. 饱和度和颜色深浅具有规律性，使得颜色的排列由浅至深而非以时间排列；且再次插入新的颜色值根据其饱和度和英文名完全可以直接知晓其位置
+
+### **文字样式 typography**
+
+#### **设计师使用部分**
+
+>自从Ice Cream Sandwich发布以来，Roboto都是Android系统的默认字体集。在这个版本中，将Roboto做了进一步全面优化，以适配更多平台。宽度和圆度都轻微提高，从而提升了清晰度，并且看起来更加愉悦。
+![字体样式说明](http://design.1sters.com/material_design/style/images/style-typography-roboto-typography.roboto2_specimen_large_mdpi.png)
+
+>**标准样式（Standard Styles）**
+<br/>
+字体排版的缩放和基本样式（Typographic Scale & Basic Styles）
+<br/>
+同时使用过多的字体尺寸和样式可以很轻易的毁掉布局。字体排版的缩放是包含了有限个字体
+尺寸的集合，并且他们能够良好的适应布局结构。最基本的样式集合就是基于12、14、16、20和34号的字体排版缩放。
+<br/>
+这些尺寸和样式在经典应用场合中让内容密度和阅读舒适度取得平衡。字体尺寸是通过SP（可缩放像素数，scaleable pixels）指定的，让大尺寸字体获得更好的可接受度。
+<br/>
+![字体尺寸说明](http://design.1sters.com/material_design/style/images/style-typography-01_large_mdpi.png)
+
+针对Display4，Display3此类字段每一个都是针对一种[场景](https://material.io/design/typography/the-type-system.html#applying-the-type-scale)可以，通过点击链接查看具体场景说明
+
+#### **开发使用展示**
+首先，要说明一个概念对于我们以前的文字其实很多方面都是不关注的，加粗斜体透明度字体之类的，而只关注到的只是尺寸；而我们的android 在view的字体使用中，一般其实都不会把字号做为一个单独使用方面,而是用 TextAppearance 这样一个概念
+<br/>
+**开发示例**
+google dimens_material.xml文件
+```xml
+<resource>
+    <dimen name="text_size_display_4_material">71sp</dimen>
+    <dimen name="text_size_display_3_material">44sp</dimen>
+    <dimen name="text_size_display_2_material">36sp</dimen>
+    <dimen name="text_size_display_1_material">27sp</dimen>
+    <dimen name="text_size_headline_material">18sp</dimen>
+    <dimen name="text_size_title_material">16sp</dimen>
+    <dimen name="text_size_subhead_material">16sp</dimen>
+    <dimen name="text_size_title_material_toolbar">16dp</dimen>
+    <dimen name="text_size_subtitle_material_toolbar">16dp</dimen>
+    <dimen name="text_size_menu_material">16sp</dimen>
+    <dimen name="text_size_menu_header_material">14sp</dimen>
+    <dimen name="text_size_body_2_material">14sp</dimen>
+    <dimen name="text_size_body_1_material">14sp</dimen>
+    <dimen name="text_size_caption_material">12sp</dimen>
+    <dimen name="text_size_button_material">14sp</dimen>
+</resource>    
+```
+goolge style_material.xml
+```xml
+<resources>
+<style name="TextAppearance.Material.Display2">
+        <item name="textSize">@dimen/text_size_display_2_material</item>
+        <item name="fontFamily">@string/font_family_display_2_material</item>
+        <item name="textColor">?attr/textColorSecondary</item>
+    </style>
+
+    <style name="TextAppearance.Material.Display1">
+        <item name="textSize">@dimen/text_size_display_1_material</item>
+        <item name="fontFamily">@string/font_family_display_1_material</item>
+        <item name="textColor">?attr/textColorSecondary</item>
+    </style>
+
+    <style name="TextAppearance.Material.Headline">
+        <item name="textSize">@dimen/text_size_headline_material</item>
+        <item name="fontFamily">@string/font_family_headline_material</item>
+        <item name="textColor">?attr/textColorPrimary</item>
+    </style>
+    <!--部分代码省略-->
+</resource>        
+```
+
+**优势**
+1. 所有场景的文字，对于的样式都是一目了然；方便开发归纳总结，提取使用
+2. 各个场景的框架已经提出，调整都是针对一种场景进行直接替换；无论是字体还是其他样式都方便管理替换，无需再像我们目前开发状态一般；各个字体设置散落各个页面毫无统一可言
+
+## **总结**
+material design在这一番研究后，让我真心觉得其作用不止是提供给设计一种新规范，给开发一套新组件那么简单，更多也是结合了开发app中的实际情况，针对一些内容进行规范，方便我们开发更好的管理应用，当然material design的内容不止这些，笔者只是针对文字和颜色两方面进行了探究；希望更多的特性能被大家发掘出来！
