@@ -55,6 +55,7 @@ tags:
     </style>
 ```
 2. 定义多种Theme
+
 ```xml
      
        <style name="ehiTheme" 
@@ -90,13 +91,14 @@ tags:
         android:theme="@style/AppTheme.blue"></style>
         <!--application中引用其中一个-->
 ```
-
 3. 针对日夜间模式的资源文件做的调整
 
 * 原有的value文件夹外，再创建values-night
+
 * 创建两份color文件,替换为不同的颜色（ps:需要在夜间模式替换的颜色定义到night文件中即可，其他颜色保留在默认文件夹中即可）
 
 value 文件中的color
+
 ```xml
 
       <color name="colorAccent">@color/colorPrimaryBlueDark</color>
@@ -110,6 +112,7 @@ value 文件中的color
     <color name="colorPrimaryPurpleDark">#ce93d8</color>
 ```
 value-night 文件中的color
+
 ```xml
 
       <color name="colorAccent">@color/colorPrimaryBlueDark</color>
@@ -145,7 +148,9 @@ public class DemoApplication extends Application {
 }
 
 ```
+
 * 设置界面的布局文件
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -193,6 +198,7 @@ public class DemoApplication extends Application {
     
 </LinearLayout>
 ```
+
 * 设置界面java代码
 
 ```java
@@ -323,7 +329,9 @@ public class MDActivity extends AppCompatActivity {
 
 
 ```        
+
 * 进入设置界面前的界面
+
 ```java
 public class MainActivity extends AppCompatActivity {
     //设置 setting动作
@@ -356,7 +364,9 @@ a. 其实就是由用户选定对应的style和日夜间模式后，关闭动画
 
 b. 返回上一界面时，界面style或日夜间模式有改动就在设置界面
 
+
 >   setResult(RESULT_OK);
+
 
 然后在上一个界面获取,然后重启界面即可
 
@@ -374,19 +384,24 @@ if (requestCode == SETTINGS_ACTION && resultCode == RESULT_OK){
 
 7. 注意点
  
- * theme当中不要直接引用  
+
+* theme当中不要直接引用  
  
   ```xml
   <style name="ehiTheme" 
     parent="@style/Theme.AppCompat.DayNight.NoActionBar">
   ```  
   而是应该再次继承一次
+
 ```xml
  <style name="AppTheme" parent="ehiTheme">
 ```
+
 这样在 ehiTheme用于管理所有android版本下的默认样式，
 而AppTheme用于在多个value下定义一些版本的新特性属性
 
 * 日夜间模式和主题的切换针对已经活着的activity是不起作用的，本文采用的思路是直接，**无动画重新创建activity**，此种方式的劣势 **就是需要对app的一些状态进行保存，保证重新创建后用户编辑过的内容不会丢失**
 
 * 夜间模式的 color，style之类的只定义需要变化的部分的颜色或者样式，不用把其他日夜间都用的统一样式复制两份，避免不必要的维护成本
+
+
