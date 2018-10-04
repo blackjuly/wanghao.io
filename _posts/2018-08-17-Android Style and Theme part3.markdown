@@ -190,6 +190,7 @@ public class DemoApplication extends Application {
 </LinearLayout>
 ```
 * 设置界面java代码
+
 ```java
 public class MDActivity extends AppCompatActivity {
      //控件定义   
@@ -355,6 +356,7 @@ b. 返回上一界面时，界面style或日夜间模式有改动就在设置界
 >   setResult(RESULT_OK);
 
 然后在上一个界面获取,然后重启界面即可
+
 ```java
 if (requestCode == SETTINGS_ACTION && resultCode == RESULT_OK){
             finish();
@@ -362,21 +364,20 @@ if (requestCode == SETTINGS_ACTION && resultCode == RESULT_OK){
             startActivity(intent);
         }
 ```
-
 6. 总结
 
 总的来说其实，切换theme主题本身并没有涉及什么很高深的技术，只是对于我们所了解的基础的内容进行一个组合，我们可以用这些很简单知识创建一个更好的用户体验！
 
 7. 注意点
  
-
 * theme当中不要直接引用  
  
-  ```xml
+```xml
   <style name="ehiTheme" 
     parent="@style/Theme.AppCompat.DayNight.NoActionBar">
-  ```  
-  而是应该再次继承一次
+```
+
+而是应该再次继承一次
 
 ```xml
  <style name="AppTheme" parent="ehiTheme">
