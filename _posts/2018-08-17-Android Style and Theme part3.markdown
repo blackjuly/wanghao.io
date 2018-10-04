@@ -141,6 +141,7 @@ public class DemoApplication extends Application {
 
 ```
 * 设置界面的布局文件
+
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
