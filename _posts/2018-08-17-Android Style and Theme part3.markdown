@@ -12,26 +12,23 @@ tags:
 ---
 
 > 基于前两篇的文章的探究，本次带来的是皮肤切换和日夜间模式切换,以及基于重写部分控件展示Theme的作用；以及对于实际使用时的讲解，踩过的一些坑的汇总
-
-
+<br/>
 ## **Android Theme切换主题总结**
-
+<br/>
 笔者本文讲述在实践换肤以及日夜间模式切换的简单Demo
-
-
+<br/>
 ## **Android Demo展示讲解**
-
+<br/>
 ### **效果展示**
-
+<br/>
 ![Demo效果展示](http://img.whdreamblog.cn/18-10-3/24504192.jpg)
-
+<br/>
 由图可以看到，是本示例由多种Theme和夜间模式配合展示效果，并且针对已有的activity也进行变换，这个也是我目前看到的很多已有的博客demo缺失部分，针对已经存在的acitivity如何处理
-
-
+<br/>
 ### **代码思路展示**
-
+<br/>
 1. 首先是针对style中的Theme的设置：
-
+<br/>
 ```xml
  <!-- Base application theme. -->
     <style name="ehiTheme" 
