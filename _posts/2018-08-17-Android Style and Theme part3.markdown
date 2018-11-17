@@ -397,6 +397,7 @@ if (requestCode == SETTINGS_ACTION && resultCode == RESULT_OK){
  <style name="AppTheme" parent="ehiTheme">
 ```
 
+ * colors.xml中的颜色无需在 value和value-night全部定义，只需要定义需要在夜间模式要替换的部分对应颜色即可
 这样在 ehiTheme用于管理所有android版本下的默认样式，
 而AppTheme用于在多个value下定义一些版本的新特性属性
 
