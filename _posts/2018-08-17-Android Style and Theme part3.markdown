@@ -15,23 +15,20 @@ tags:
 
 
 ## **Android Theme切换主题总结**
-
+<br/>
 笔者本文讲述在实践换肤以及日夜间模式切换的简单Demo
-
-
+<br/>
 ## **Android Demo展示讲解**
-
+<br/>
 ### **效果展示**
-
+<br/>
 ![Demo效果展示](http://img.whdreamblog.cn/18-10-3/24504192.jpg)
-
+<br/>
 由图可以看到，是本示例由多种Theme和夜间模式配合展示效果，并且针对已有的activity也进行变换，这个也是我目前看到的很多已有的博客demo缺失部分，针对已经存在的acitivity如何处理
-
 
 ### **代码思路展示**
 
 1. 首先是针对style中的Theme的设置：
-
 ```xml
  <!-- Base application theme. -->
     <style name="ehiTheme" 
@@ -55,7 +52,6 @@ tags:
     </style>
 ```
 2. 定义多种Theme
-
 ```xml
      
        <style name="ehiTheme" 
@@ -92,9 +88,7 @@ tags:
         <!--application中引用其中一个-->
 ```
 3. 针对日夜间模式的资源文件做的调整
-
 * 原有的value文件夹外，再创建values-night
-
 * 创建两份color文件,替换为不同的颜色（ps:需要在夜间模式替换的颜色定义到night文件中即可，其他颜色保留在默认文件夹中即可）
 
 value 文件中的color
@@ -125,9 +119,7 @@ value-night 文件中的color
     <color name="colorPrimaryPurple">#d500f9</color>
     <color name="colorPrimaryPurpleDark">#aa00ff</color>
 ```
-
 4. 代码中使用多Theme和日夜间模式
-
 * 设定缓存Theme变化后的设置的保存位置
 本demo中使用application做为保存，真实项目请使用xml等持久化方式来保存用户设置
 
@@ -148,7 +140,6 @@ public class DemoApplication extends Application {
 }
 
 ```
-
 * 设置界面的布局文件
 
 ```xml
@@ -198,7 +189,6 @@ public class DemoApplication extends Application {
     
 </LinearLayout>
 ```
-
 * 设置界面java代码
 
 ```java
@@ -363,10 +353,7 @@ public class MainActivity extends AppCompatActivity {
 a. 其实就是由用户选定对应的style和日夜间模式后，关闭动画的情况下，重新启动 设置的activity
 
 b. 返回上一界面时，界面style或日夜间模式有改动就在设置界面
-
-
 >   setResult(RESULT_OK);
-
 
 然后在上一个界面获取,然后重启界面即可
 
@@ -377,21 +364,20 @@ if (requestCode == SETTINGS_ACTION && resultCode == RESULT_OK){
             startActivity(intent);
         }
 ```
-
 6. 总结
 
 总的来说其实，切换theme主题本身并没有涉及什么很高深的技术，只是对于我们所了解的基础的内容进行一个组合，我们可以用这些很简单知识创建一个更好的用户体验！
 
 7. 注意点
  
-
 * theme当中不要直接引用  
  
-  ```xml
+```xml
   <style name="ehiTheme" 
     parent="@style/Theme.AppCompat.DayNight.NoActionBar">
-  ```  
-  而是应该再次继承一次
+```
+
+而是应该再次继承一次
 
 ```xml
  <style name="AppTheme" parent="ehiTheme">
