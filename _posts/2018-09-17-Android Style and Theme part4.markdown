@@ -24,7 +24,7 @@ tags:
 
 如果大家按本文第一章的方式设定Theme时，一定要注意几点：
 
-1. 文字颜色一定要设置小心，由于Theme具有继承性，所以文字颜色的设定会被Android本身的style的继承结构沿用到其子类；但是，在沿用其子类时，有时会进行一定配置的重写，而此时重写的配置就会变为一个不可控因素，产生意想不到的bug
+ 文字颜色一定要设置小心，由于Theme具有继承性，所以文字颜色的设定会被Android本身的style的继承结构沿用到其子类；但是，在沿用其子类时，有时会进行一定配置的重写，而此时重写的配置就会变为一个不可控因素，产生意想不到的bug
 
 示例：
 笔者在使用时，设定了这样的配置
@@ -69,380 +69,200 @@ b>另外，需要大家注意的是，在v7包下的alertDialog和app包下的al
 
 v7包：
 ```xml
- <item name="alertDialogTheme">@style/EhiTheme.AlertDialog</item>
+ <item name="alertDialogTheme"></item>
 ```
 app系统包下：
 ```xml
-<item name="android:alertDialogTheme">@style/EhiTheme.AlertDialog</item>
+<item name="android:alertDialogTheme"></item>
 
 ```
 如果项目在使用上不规范的情况下，很可能两种dialog都会引入进行使用，那么两种其一不起作用，都会有产生Bug的风险！
 解决方案：
+针对Dialog的Theme主题部分，进行重写
 
+定义Alert自己的Theme：
 
-### **代码思路展示**
-
-1. 首先是针对style中的Theme的设置：
+colors.xml
 ```xml
- <!-- Base application theme. -->
-    <style name="ehiTheme" 
-    parent="@style/Theme.AppCompat.DayNight.NoActionBar">
-    <!-- a.将普通的Theme .AppCompat.Light 替换 .AppCompat.DayNight 用于日夜间模式替换 -->
-        
-        <item name="buttonStyle">@style/ehiButton</item>
-         <!-- b.重写部分控件的样式，修改默认展示的效果 -->
-        
-        <item name="checkboxStyle">@style/ehiCheckBox</item>
-        <!--两者为不同维度 内部按钮 文字等 alertDialogStyle定义内部按钮 定义内部window类似 back等属性 alertDialogTheme-->
-        <item name="alertDialogTheme">@style/AppTheme.blue.AlertDialog</item>
-        <item name="radioButtonStyle">@style/ehiRadioButton</item>
+<color name="colorAccent">#FFFF7E00</color>
+```
+Themes.xml
+```xml
+    <style name="EhiTheme.AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textColor">@color/colorAccent</item>
+        <item name="buttonStyle">@style/EhiTheme.Button.Alert</item>
     </style>
 
-    <!-- c.重写按钮样式示例展示 -->
-    <style name="ehiButton" parent="@style/Base.Widget.AppCompat.Button">
-        <item name="android:background">?colorAccent</item>
-        <item name="android:textColor">@color/white</item>
-        <item name="android:textAppearance">@style/Base.TextAppearance.AppCompat.Small</item>
-    </style>
-```
-2. 定义多种Theme
-```xml
-     
-       <style name="ehiTheme" 
-    parent="@style/Theme.AppCompat.DayNight.NoActionBar">
-        <!--部分代码省略-->
-    </style> 
-    <style name="AppTheme" parent="ehiTheme">
-        <!-- Customize your theme here. -->
-         <!-- a.定义多种主题Theme前不直接当做父类，而是再次继承一遍，方便在value -v21的更高文件夹中直接利用该 AppTheme 添加新特性，而上面ehiTheme可以统一添加一些共同具有的属性 -->
-    </style> 
-    <!--b.定义蓝色主题-->
-     <style name="AppTheme.blue">
-        <item name="colorPrimary">@color/colorPrimaryBlue</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryBlueDark</item>
-        <item name="colorAccent">@color/colorPrimaryBlueDark</item>
-        <item name="alertDialogTheme">@style/AppTheme.blue.AlertDialog</item>
-    </style>
-     <!--c.定义紫色主题-->
-     <style name="AppTheme.Purple" >
-        <item name="colorPrimary">@color/colorPrimaryPurple</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryPurpleDark</item>
-        <item name="colorAccent">@color/colorPrimaryPurpleDark</item>
-        <item name="alertDialogTheme">@style/AppTheme.Purple.AlertDialog</item>
+    <style name="EhiTheme.Button.Alert" parent="@style/Widget.AppCompat.Button">
+        <item name="android:background">@color/white</item>
+        <item name="android:textColor">@color/colorAccent</item>
     </style>
 
-     <application
-        android:allowBackup="false"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:name=".DemoApplication"
-        android:theme="@style/AppTheme.blue"></style>
-        <!--application中引用其中一个-->
+<style name="ThemeBase" parent="Theme.AppCompat.Light.NoActionBar">
+        <!--定义v7 之后所有api的内容-->
+        <!--基本主题色-->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <!--部分忽略-->
+        <item name="buttonStyle">@style/EhiTheme.Button</item>
+        <item name="alertDialogTheme">@style/EhiTheme.AlertDialog</item>
+         <item name="android:alertDialogTheme">@style/EhiTheme.AlertDialog</item>
+    </style>
+       
 ```
-3. 针对日夜间模式的资源文件做的调整
-* 原有的value文件夹外，再创建values-night
-* 创建两份color文件,替换为不同的颜色（ps:需要在夜间模式替换的颜色定义到night文件中即可，其他颜色保留在默认文件夹中即可）
-
-value 文件中的color
-
+v21中Themes.xml
 ```xml
-
-      <color name="colorAccent">@color/colorPrimaryBlueDark</color>
-    <color name="colorPrimary">@color/colorPrimaryBlue</color>
-    <color name="colorBackgroundTrans">#AAFAFAFA</color>
-
-    <color name="colorPrimaryBlue">#bbdefb</color>
-    <color name="colorPrimaryBlueDark">#90caf9</color>
-
-     <color name="colorPrimaryPurple">#e1bee7</color>
-    <color name="colorPrimaryPurpleDark">#ce93d8</color>
+     <style name="EhiTheme" parent="ThemeBase">
+        <!--定义v21 之后api的内容-->
+        <item name="android:timePickerDialogTheme">?alertDialogTheme</item>
+        <item name="android:datePickerDialogTheme">?alertDialogTheme</item>
+        <item name="android:alertDialogTheme">?alertDialogTheme</item>
+    </style>
 ```
-value-night 文件中的color
 
+代码中，如果结构不好有多个baseActivity基类一定要注意！父类在继承**FragmentActivity**和**AppCompatActivity**时，其展现形式是不一样的，由于AppCompatActivity在为了保证变为统一样式在内部做了很多封装；（ps:theme继承了的情况下**Theme.AppCompat.Light.NoActionBar**；使用基础activity会crash），需要在添加后测试一下
+
+### **针对view自定义属性**
+
+自定义控件的属性的命名的一点小建议:
+
+以前我们的自定义view属性的命名全凭喜好
+主流的一般有这样的，小驼峰的命名形式
 ```xml
-
-      <color name="colorAccent">@color/colorPrimaryBlueDark</color>
-    <color name="colorPrimary">@color/colorPrimaryBlue</color>
-    <color name="colorBackgroundTrans">#AAFAFAFA</color>
-
-   <color name="colorPrimaryBlue">#82b1ff</color>
-    <color name="colorPrimaryBlueDark">#2962ff</color>
-
-    <color name="colorPrimaryPurple">#d500f9</color>
-    <color name="colorPrimaryPurpleDark">#aa00ff</color>
+<declare-styleable name="EhiTitleBar">
+    
+        <attr name="isSearchView" format="boolean"/>
+        <attr name="searchViewHint" format="string" />
+        <attr name="titleBackground" format="color|reference" />
+    </declare-styleable>
 ```
-4. 代码中使用多Theme和日夜间模式
-* 设定缓存Theme变化后的设置的保存位置
-本demo中使用application做为保存，真实项目请使用xml等持久化方式来保存用户设置
-
-```java
-public class DemoApplication extends Application {
-    private static DemoApplication demoApplication;
-   private static final int defaultStyle = R.style.AppTheme_blue;//默认的主题
-   private static int tempNightMode = AppCompatDelegate.MODE_NIGHT_NO;//默认日间模式
-    private static int style = defaultStyle;
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        demoApplication = this;
-    }
-
-    //getter 和 setter 方法省略
-
-}
-
-```
-* 设置界面的布局文件
-
+还有下划线大法的
 ```xml
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".MDActivity">
+<declare-styleable name="EhiDrawingBoard">
+        <attr name="stroke_width" format="integer"/>
+        <attr name="paint_color" format="color"/>
+        <attr name="canvas_color" format="color|reference"/>
+        <attr name="anti_alias" format="boolean"/>
+    </declare-styleable>
+```
 
-    <Button
-        android:id="@+id/btn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="测试按钮" />
-    <RadioGroup
-        android:id="@+id/rg_theme"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
-          <RadioButton
-            android:id="@+id/pink"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="粉色" />
-        <RadioButton
-            android:id="@+id/blue"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="蓝色" />
-        <RadioButton
-            android:id="@+id/Purple"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="紫色" />
+但是我认为很多内容的使用，我们都应该更接近原生控件的使用：
 
-    </RadioGroup>
-
-    <Switch
-        android:id="@+id/switch_day_night"
+例如textView
+```xml
+<TextView
+        android:id="@+id/text_type"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="日夜间模式切换"
-        android:checked="false"
-        />
-    
-</LinearLayout>
+        android:layout_weight="1"
+        android:text="今天"
+        android:layout_marginLeft="10dp"
+        android:textColor="@color/black"
+        android:textSize="18sp" />
+
 ```
-* 设置界面java代码
+可以看的出android的控件命名其实是分成两部分
+属性是作用于其子类本身的内部，像这样的文本尺寸
+>   android:textSize="18sp" 
 
-```java
-public class MDActivity extends AppCompatActivity {
-     //控件定义   
-    private RadioGroup rg;
-    private Switch switchDayNight;
-    private RadioButton pink;
-    private RadioButton blue;
-    private RadioButton Purple;
+采用了小驼峰法
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        //activiy重建后，读取设置后的style
-        setTheme(DemoApplication.getStyle());
-        super.onCreate(savedInstanceState);
-        //activiy重建后，设置界面读取日夜间模式
-        if (DemoApplication.getTempNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-        }
-        setContentView(R.layout.activity_md);
-    initView();
-    }
-    //初始化视图
-     private void initView() {
-         //activiy重建后，设置switch开关
-        switchDayNight = findViewById(R.id.switch_day_night);
-        if (AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES) {
-            switchDayNight.setChecked(true);
-        } else {
-            switchDayNight.setChecked(false);
-        }
-        //社会
-        switchDayNight.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    DemoApplication.setTempNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                    Intent intent = getIntent();
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                    setResult(RESULT_OK);
-                    finish();
-                    startActivity(intent);
-                    overridePendingTransition(0, 0);
-                } else {
-                    DemoApplication.setTempNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                    Intent intent = getIntent();
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                    setResult(RESULT_OK);
-                    finish();
-                    startActivity(intent);
-                    overridePendingTransition(0, 0);
-                }
-            }
-        });
-        pink = findViewById(R.id.pink);
-        blue = findViewById(R.id.blue);
-        Purple = findViewById(R.id.Purple);
-        rg = findViewById(R.id.rg_theme);
-        setCheck();
-        rg.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch (checkedId) {
-                    case R.id.pink:
-                        setStyle(R.style.AppTheme_Pink);
-                        break;
-                    case R.id.blue:
-                        setStyle(R.style.AppTheme_blue);
-                        break;
-                    case R.id.Purple:
-                        setStyle(R.style.AppTheme_Purple);
-                        break;
-                    default:
-                        setStyle(R.style.AppTheme_blue);
-                }
+而属性比如是作用于控件的类似layoutparam这种和父类相关的属性
+>  android:layout_height="wrap_content"
 
+以下划线来区分，这样其实我觉得对于学习和接受度其实都可以很快，毕竟在使用原始控件时的方式都类似
 
-            }
-        });
-    }
-    //设置对应的主题
-    private void setCheck() {
+### **Style命名的一点小建议**
 
-        switch (DemoApplication.getStyle()){
-            case R.style.AppTheme_Pink:
-                pink.setChecked(true);
-                break;
-            case R.style.AppTheme_blue:
-                blue.setChecked(true);
-                break;
-            case R.style.AppTheme_Purple:
-                Purple.setChecked(true);
-                break;
-            default:
-                blue.setChecked(true);
-        }
-    }
-   //将style进行设置，将界面进行重启
-    private void setStyle(int appTheme) {
-        //相同主题，不进行重启activity
-        if (DemoApplication.getStyle() == appTheme) {
-            return;
-        }
-        //缓存用户的主题设置
-        DemoApplication.setStyle(appTheme);
-        Intent intent = getIntent();
-        //设置将activity的转场动画关闭
-        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-        //重启时Result丢失，返回上一个界面
-        setResult(RESULT_OK);
-        finish();
-        startActivity(intent);
-        //关闭转场动画
-        overridePendingTransition(0, 0);
-    }
-
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
-            setResult(RESULT_OK);//用于通知上一个界面，重启
-            finish();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
-
-
-```        
-
-* 进入设置界面前的界面
-
-```java
-public class MainActivity extends AppCompatActivity {
-    //设置 setting动作
-    private int SETTINGS_ACTION = 1;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        //读取新的style
-        setTheme(DemoApplication.getStyle());
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        initView();
-    }
-   //用于重新创建已有界面，来展示新的style和日夜间模式
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == SETTINGS_ACTION && resultCode == RESULT_OK){
-            finish();
-            Intent intent = getIntent();
-            startActivity(intent);
-        }
-    }
-}
-```
-5. 实现思路
-
-主要的实现思路非常简单：
-
-a. 其实就是由用户选定对应的style和日夜间模式后，关闭动画的情况下，重新启动 设置的activity
-
-b. 返回上一界面时，界面style或日夜间模式有改动就在设置界面
->   setResult(RESULT_OK);
-
-然后在上一个界面获取,然后重启界面即可
-
-```java
-if (requestCode == SETTINGS_ACTION && resultCode == RESULT_OK){
-            finish();
-            Intent intent = getIntent();
-            startActivity(intent);
-        }
-```
-6. 总结
-
-总的来说其实，切换theme主题本身并没有涉及什么很高深的技术，只是对于我们所了解的基础的内容进行一个组合，我们可以用这些很简单知识创建一个更好的用户体验！
-
-7. 注意点
+style的使用命名规范的一点小建议
  
-* theme当中不要直接引用  
- 
+ 以前的style我们是这么命名的：
+ ```xml
+ <!-- 条目标签样式 -->
+    <style name="item_reimburse_label">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">0.3</item>
+    </style>
+ ```
+但是，这种命名其实非常凌乱，
++ 看不出style的层级关系，继承关系
++ 看不出它所属的模块；所以在比较大的项目工程中，在上方使用者调用会非常混乱
++ style的统一管理十分困难，有差不多的一组style有样式改动，将会是一个灾难
++ 组件化后，各个模块容易出现命名重复问题
+后来我们进行了一点优化
 ```xml
-  <style name="ehiTheme" 
-    parent="@style/Theme.AppCompat.DayNight.NoActionBar">
+<!--myorder是module名-->
+ <style name="myorder_item_reimburse_label">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">0.3</item>
+    </style>
 ```
+命名虽然看的出模块所属，但是我觉得没有充分将style的功能发挥出来，使用也并不怎么友好！
 
-而是应该再次继承一次
+我认为比较适合我们在大型项目中工程化的style的命名是需要更向系统的style命名形式靠拢的：
+
+一般我们可以采用大驼峰的命名形式，以 . 作为各种应用场景的区分 
+
+ **Module.页面.控件类型.控件修饰描述**
+
 
 ```xml
- <style name="AppTheme" parent="ehiTheme">
+    <!--总模块-->
+    <style name="CompanyInfo" />
+     <!--总模块，所属界面-->
+    <style name="CompanyInfo.DriverMangerSearchOrderResult" />
+     <!--总模块，所属界面.对应控件-->
+    <style name="CompanyInfo.DriverMangerSearchOrderResult.ItemLabelContent">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">@dimen/tv_order_content_margin_top</item>
+        <item name="android:ellipsize">end</item>
+    </style>
+      <!--总模块，所属界面.对应控件.控件应用场景描述-->
+     <style name="CompanyInfo.DriverMangerSearchOrderResult.ItemLabelContent.NoBackground">
+        <item name="android:background">@null</item>
+    </style>
 ```
+可是，我们很多情况下会有很多界面共用同样的样式，所以为了这种情况，我们可以利用 style的显示继承
+首先，定义一个公共模块的样式
+```xml
+<!--labelContentView的Style-->
+    <style name="EhiBase.Widget.LabelContent">
+        <!--部分忽略-->
+        <item name="contentColor">@color/colorGray100</item>
+        <item name="contentHintColor">@color/colorGray350</item>
+    </style>
+```
+然后，在自己的module里面直接进行引用,这样，在同时保证了命名的统一的同时，还兼顾的使用通用样式
+```xml
+<!--用于个人管理模块-->
+    <style name="PersonalManager" />
+    <!--个人信息界面-->
+    <style name="PersonalManager.MyInformation" />
+    <!--利用显示继承，使用通用样式-->
+    <style name="PersonalManager.MyInformation.LabelContent" parent="EhiBase.Widget.LabelContent"/>
+     
+```
+这样有以下优势
++ 有统一的模块描述，页面描述，控件描述；
++ 能够更好使得命名空间不冲突
++ 同时利用 style的显式继承可以做到对控件的统一管控
++ 类似Android原生的用法，上手更快
 
- * colors.xml中的颜色无需在 value和value-night全部定义，只需要定义需要在夜间模式要替换的部分对应颜色即可
-这样在 ehiTheme用于管理所有android版本下的默认样式，
-而AppTheme用于在多个value下定义一些版本的新特性属性
+部分源码展示
+```xml
+ <style name="Theme.AppCompat" parent="Base.Theme.AppCompat"/>
+    <style name="Theme.AppCompat.CompactMenu" parent="Base.Theme.AppCompat.CompactMenu"/>
+    <style name="Theme.AppCompat.DayNight" parent="Theme.AppCompat.Light"/>
+    <style name="Theme.AppCompat.DayNight.DarkActionBar" parent="Theme.AppCompat.Light.DarkActionBar"/>
+    <style name="Theme.AppCompat.DayNight.Dialog" parent="Theme.AppCompat.Light.Dialog"/>
+    <style name="Theme.AppCompat.DayNight.Dialog.Alert" parent="Theme.AppCompat.Light.Dialog.Alert"/>
+```
+隐式继承控制命名的完整性，显式继承控制模块与模块之间的通用部分
 
-* 日夜间模式和主题的切换针对已经活着的activity是不起作用的，本文采用的思路是直接，**无动画重新创建activity**，此种方式的劣势 **就是需要对app的一些状态进行保存，保证重新创建后用户编辑过的内容不会丢失**
-
-* 夜间模式的 color，style之类的只定义需要变化的部分的颜色或者样式，不用把其他日夜间都用的统一样式复制两份，避免不必要的维护成本
 
 
