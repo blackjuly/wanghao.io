@@ -192,7 +192,9 @@ style的使用命名规范的一点小建议
 + 看不出它所属的模块；所以在比较大的项目工程中，在上方使用者调用会非常混乱
 + style的统一管理十分困难，有差不多的一组style有样式改动，将会是一个灾难
 + 组件化后，各个模块容易出现命名重复问题
+
 后来我们进行了一点优化
+
 ```xml
 <!--myorder是module名-->
  <style name="myorder_item_reimburse_label">
@@ -201,6 +203,7 @@ style的使用命名规范的一点小建议
         <item name="android:layout_weight">0.3</item>
     </style>
 ```
+
 命名虽然看的出模块所属，但是我觉得没有充分将style的功能发挥出来，使用也并不怎么友好！
 
 我认为比较适合我们在大型项目中工程化的style的命名是需要更向系统的style命名形式靠拢的：
