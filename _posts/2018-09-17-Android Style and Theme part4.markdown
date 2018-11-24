@@ -58,8 +58,10 @@ tags:
 
 以下是不同版本下，此重写样式后AlertDialog的不同体现
 
+![Android 8.0](/img/in-post/post-style-theme/20180917themeAndroid8.0.png)
 Android 8.0
 
+![Android 6.0](/img/in-post/post-style-theme/20180917themeAndroid6.0.png)
 Android 6.0
 
 通过上图可以看到，在Android 6.0的弹窗上，文字采用了colorAccent的颜色，而Android8.0则采用了文字继承下来的白色；但是两者在显示上的一个共同点就是，背景都被置空；这就造成了白色背景加上白色字体的显示bug！
