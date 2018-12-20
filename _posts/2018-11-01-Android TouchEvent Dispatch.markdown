@@ -50,10 +50,55 @@ Android界面与类对应图
 讲解范围示意图
 
 ### view的分发方法讲解
-对于view来讲，我们目前
+对于view来讲，我们目前主要关注的方法就是：
 
+>dispatchTouchEvent()
+作用：
+1. 如果 **View.OnTouchListener.onTouch** 存在发送 event给我们熟知的 **OnTouchListener**
+```java
+   //部分代码忽略 
+  //noinspection SimplifiableIfStatement
+            ListenerInfo li = mListenerInfo;
+            if (li != null && li.mOnTouchListener != null
+                    && (mViewFlags & ENABLED_MASK) == ENABLED
+                    && li.mOnTouchListener.onTouch(this, event)) {
+                result = true;
+            }
+```
+2. 如果 **OnTouchListener** 为空，即该event没有被消费，则传递给 **view.onTouchEvent()**,在该method中调用的也就是我们常见
+```java
+public boolean performClick() {
+        // 部分代码忽略
+        if (li != null && li.mOnClickListener != null) {
+            playSoundEffect(SoundEffectConstants.CLICK);
+            li.mOnClickListener.onClick(this);
+            result = true;
+        } else {
+            result = false;
+        }
+        return result;
+    }
+```
 ### viewGroup的分发方法讲解
+而对于viewGroup在代码中，主要需要关注的首先同样也是 
+**dispatchTouchEvent()**，而viewGroup的dispatch方法与view的作用不同,伪代码如下
+```java
+ public boolean dispatchTouchEvent ( MotionEvent ev){
+     if(!onInterceptTouchEvent){
+         for(int i = children.size();i>=0;i--){
+             if(children.get(i).dispatchTouchEvent(ev)){
+                 return true;
+             }
+         }
+     }
+     return super.dispatchTouchEvent(ev);
+ }   
+```
+由伪代码可以看到，在我们可以看到在viewGroup中**dispatchTouchEvent()**的作用：
 
+1. 利用 **onInterceptTouchEvent** 决定是否要截断当前的事件，调用其viewGroup的父类的**dispatchTouchEvent()**
+
+2. 
 ### view和viewGroup交互流程示意图
 
 ## 3.view和viewGroup源码详解
