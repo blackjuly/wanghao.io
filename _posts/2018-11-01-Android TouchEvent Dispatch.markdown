@@ -48,11 +48,13 @@ Android界面与类对应图
 在上一部分讲解，相信大家对于我们的事件传递大致有了一个概念，接下来我们来用伪代码表述和流程图初步对代码有个认识（PS：笔者不主张一开始就直接讲解源码细节，容易让人一头雾水，最好可以有材料对相关知识点有个大致了解，有一个主线，避免在源码中迷失），那么，我们首先要划定一个范围，我们目前只针对 activity以下，更多重心会放在事件在开发者的布局传递的一个流程！
 
 讲解范围示意图
+![范围示意图](/img/in-post/post-touch-event-dispatch/focus-event-handing-part-pipeline.JPG)
 
 ### view的分发方法讲解
 对于view来讲，我们目前主要关注的方法就是：
 
 >dispatchTouchEvent()
+
 作用：
 1. 如果 **View.OnTouchListener.onTouch** 存在发送 event给我们熟知的 **OnTouchListener**
 ```java
@@ -98,7 +100,13 @@ public boolean performClick() {
 
 1. 利用 **onInterceptTouchEvent** 决定是否要截断当前的事件，调用其viewGroup的父类的**dispatchTouchEvent()**
 
-2. 
-### view和viewGroup交互流程示意图
+2. 当**onInterceptTouchEvent**为false的时候，viewGroup就分发到其所持有的所有child，倒着依次询问child是否能够消费掉该event
+
+![viewGroup事件分发示意图](http://img.whdreamblog.cn/18-12-21/20913576.jpg)
 
 ## 3.view和viewGroup源码详解
+开始之前，我们再用一个流程图来简单过一下，代码的一个流程；希望可以帮助小伙伴抓住主线代码进行阅读
+![完整分发示意图](http://img.whdreamblog.cn/18-12-21/75470051.jpg)
+
+在看此图的时候，有一点需要注意，我们的view的事件分发一般
+首先，我们来看流程的最末端view针对一个event的代码阐述
