@@ -22,7 +22,7 @@ tags:
 
 首先，对于刚开始接触阅读Android源码的小伙伴，笔者认为可以借助一些图解流程；先了解一下其背后大致的流程，再扎进源码中进行阅读，避免被太多无关代码干扰无法顺利的阅读主线内容。
 那么，既然说到要先用图片大致了解流程，那就先不废话了，直接上图
-![Android 事件分发 pipeline](/img/in-post/post-touch-event-dispatch/event-handing-pipeline.jpg)
+![Android 事件分发 pipeline](/img/in-post/post-touch-event-dispatch/event-handing-pipeline.JPG) 
 *Android 事件分发 pipeline*
 
 由上图我们可知：
@@ -114,6 +114,12 @@ public boolean performClick() {
 首先，我们来看流程的最末端view针对一个event的代码阐述
 
 #### view.dispatchEvent(event)分析
+
+相关讲解链接
+
+[onFilterTouchEventForSecurity](#onFilterTouchEventForSecurity（methd简析）)
+
+[OnTouchListener.onTouch](#OnTouchListener.onTouch（methd简析）)
 ```java
 public boolean dispatchTouchEvent(MotionEvent event) {
         //部分代码忽略
@@ -187,7 +193,12 @@ public boolean dispatchTouchEvent(MotionEvent event) {
 ```
 
 #### view.onTouchEvent(event)分析
-**onTouchEvent**就已经可以看到我们最常用的部分链接
+
+相关讲解链接
+
+[TouchDelegate.onTouchEvent](#mTouchDelegate.onTouchEvent)
+
+**onTouchEvent**就已经可以看到我们最常用的部分代码内容
 ```java
  public boolean onTouchEvent(MotionEvent event) {
         final float x = event.getX();
@@ -208,7 +219,7 @@ public boolean dispatchTouchEvent(MotionEvent event) {
             // events, it just doesn't respond to them.
             return clickable; //diable的view也可以消费事件，只是不响应
         }
-        if (mTouchDelegate != null) {//如果mTouchDelegate不为空，调用该类（后文讲解 [TouchDelegate.onTouchEvent](#mTouchDelegate.onTouchEvent)）
+        if (mTouchDelegate != null) {//如果mTouchDelegate不为空，调用该类（后文讲解) 
             if (mTouchDelegate.onTouchEvent(event)) {
                 return true;
             }
