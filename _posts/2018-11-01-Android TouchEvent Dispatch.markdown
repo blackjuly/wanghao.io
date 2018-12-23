@@ -117,9 +117,9 @@ public boolean performClick() {
 
 相关讲解链接
 
-[onFilterTouchEventForSecurity](#onFilterTouchEventForSecurity（methd简析）)
+[onFilterTouchEventForSecurity](#onFilterTouchEventForSecurity)
 
-[OnTouchListener.onTouch](#OnTouchListener.onTouch（methd简析）)
+[OnTouchListener.onTouch](#OnTouchListener.onTouch)
 ```java
 public boolean dispatchTouchEvent(MotionEvent event) {
         //部分代码忽略
@@ -160,7 +160,7 @@ public boolean dispatchTouchEvent(MotionEvent event) {
         return result;
     }
 ```
-##### onFilterTouchEventForSecurity（methd简析）
+##### onFilterTouchEventForSecurity
 
 该methd是Google为触摸事件的分发指定了一个安全策略：
 如果当前View不处于顶部，且View设置的属性是该View不在顶部时不响应触摸事件，则不分发该事件。
@@ -179,7 +179,7 @@ public boolean dispatchTouchEvent(MotionEvent event) {
         return true;
     }
 ```
-##### OnTouchListener.onTouch（methd简析）
+##### OnTouchListener.onTouch
 我们常用的 onTouch事件，允许用户有机会获取所用event，并且消费掉该事件
 ```java
     public interface OnTouchListener {
