@@ -2,7 +2,7 @@
 layout:     post
 title:      "Android touch Event Dispatch"
 subtitle:   "Android 事件分发（理论上篇—— ACTION_DOWN 发生了什么）"
-date:       2017-07-20 21:36:00
+date:       2018-11-20 21:36:00
 author:     "wanghao"
 header-img: "img/post-bg-2015.jpg"
 tags:
