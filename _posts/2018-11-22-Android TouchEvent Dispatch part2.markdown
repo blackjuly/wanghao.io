@@ -25,86 +25,8 @@ tags:
 而ACTION_UP和ACTION_DOWN不同的一点就在于，当图中最后的VIEW在接收到ACTION_DOWN的通知，对该触控事件不感兴趣时；则之后的ACTION就不再向下分发！
 
 ### view源码讲解
-接下来，我们来看流程的最末端view针对一个event的代码阐述
-
-#### view.dispatchEvent(event)分析
-
-相关讲解链接
-
-[onFilterTouchEventForSecurity](#onFilterTouchEventForSecurity)
-
-[OnTouchListener.onTouch](#OnTouchListener.onTouch)
-```java
-public boolean dispatchTouchEvent(MotionEvent event) {
-        //部分代码忽略
-        boolean result = false;
-         //部分代码忽略
-        final int actionMasked = event.getActionMasked();//1.获取当前event中action
-        if (actionMasked == MotionEvent.ACTION_DOWN) {
-            // Defensive cleanup for new gesture 
-            //2.为了一些新手势，加一层保护性的清理善后
-            stopNestedScroll();//停止了nestedScrollview的滚动
-        }
-
-        if (onFilterTouchEventForSecurity(event)) {//3.过滤event中的非安全情况（后文有讲解）
-            if ((mViewFlags & ENABLED_MASK) == ENABLED //4.在view状态为enable的情况下
-            && handleScrollBarDragging(event)) {//5.如果是鼠标操控滚动栏
-                result = true;//直接返回true
-            }
-
-            ListenerInfo li = mListenerInfo;
-            if (li != null && li.mOnTouchListener != null//6.enable的情况下，且OnTouchListernr不为空
-                    && (mViewFlags & ENABLED_MASK) == ENABLED
-                    && li.mOnTouchListener.onTouch(this, event)) {//7.直接下发给 onTouch
-                result = true;
-            }
-
-            if (!result && onTouchEvent(event)) {//8.mOnTouchListener没有消费，则分给其他触控事件；此处注意，result == false才能进入 传递给 onTouchEvent(后文有详细解析)
-                result = true;
-            }
-        }
-
-        // 处理stopNestedScroll和手势的情况，非关注点；暂时忽略
-        if (actionMasked == MotionEvent.ACTION_UP ||
-                actionMasked == MotionEvent.ACTION_CANCEL ||
-                (actionMasked == MotionEvent.ACTION_DOWN && !result)) {
-            stopNestedScroll();
-        }
-
-        return result;
-    }
-```
-##### onFilterTouchEventForSecurity
-
-该methd是Google为触摸事件的分发指定了一个安全策略：
-如果当前View不处于顶部，且View设置的属性是该View不在顶部时不响应触摸事件，则不分发该事件。
-即不安全的情况需要满足两点：
-1. 在设定被遮挡时需要过滤该事件（mViewFlags包含FILTER_TOUCHES_WHEN_OBSCURED）
-
-2. 当前触控事件确实已经被遮挡（event.getFlags()包含MotionEvent.FLAG_WINDOW_IS_OBSCURED）
-```java
-  public boolean onFilterTouchEventForSecurity(MotionEvent event) {
-        //noinspection RedundantIfStatement
-        if ((mViewFlags & FILTER_TOUCHES_WHEN_OBSCURED) != 0
-                && (event.getFlags() & MotionEvent.FLAG_WINDOW_IS_OBSCURED) != 0) {
-            // 满足以上两点不安全的情况，直接返回false，下掉该触控事件
-            return false;
-        }
-        return true;
-    }
-```
-##### OnTouchListener.onTouch
-我们常用的 onTouch事件，允许用户有机会获取所用event，并且消费掉该事件
-```java
-    public interface OnTouchListener {
-        /**
- *
- * @param v 被触控事件分发到的view
- * @param event The MotionEvent 包含的所有event信息
- * @return True 消费该事件，false不消费  */  
-        boolean onTouch(View v, MotionEvent event);
-    }
-```
+在view的源代码中，dispatchTouchEvent()方法部分ACTION_UP和ACTION_DOWN部分执行的主流程部分并没有什么区别，主要区别在于
+view.onTouchEvent部分，需要进行一定讲解
 
 #### view.onTouchEvent(event)分析
 
@@ -124,75 +46,76 @@ public boolean dispatchTouchEvent(MotionEvent event) {
                 || (viewFlags & LONG_CLICKABLE) == LONG_CLICKABLE)//判断长按开关
                 || (viewFlags & CONTEXT_CLICKABLE) == CONTEXT_CLICKABLE;//判断是否可以开启上下文的点击，比如 鼠标右键点击
 
-        if ((viewFlags & ENABLED_MASK) == DISABLED) { //disable的情况处理
-            if (action == MotionEvent.ACTION_UP && (mPrivateFlags & PFLAG_PRESSED) != 0) {
-                setPressed(false);//设置view内部的Pressed的状态，响应一些比如按下的视图效果
-            }
-            mPrivateFlags3 &= ~PFLAG3_FINGER_DOWN;
-            // A disabled view that is clickable still consumes the touch
-            // events, it just doesn't respond to them.
-            return clickable; //diable的view也可以消费事件，只是不响应
-        }
-        if (mTouchDelegate != null) {//如果mTouchDelegate不为空，调用该类（后文讲解) 
-            if (mTouchDelegate.onTouchEvent(event)) {
-                return true;
-            }
-        }
-
+      //部分源代码忽略
         if (clickable || (viewFlags & TOOLTIP) == TOOLTIP) {//a.可以点击的情况情况；b.有悬停和长按显示工具提示框
             switch (action) {
-                case MotionEvent.ACTION_DOWN://方便读者阅读，将down放置最上方
-                    if (event.getSource() == InputDevice.SOURCE_TOUCHSCREEN) {
-                        mPrivateFlags3 |= PFLAG3_FINGER_DOWN;
+               
+                  case MotionEvent.ACTION_UP:
+                    mPrivateFlags3 &= ~PFLAG3_FINGER_DOWN;
+                    if ((viewFlags & TOOLTIP) == TOOLTIP) {
+                        handleTooltipUp();
                     }
-                    mHasPerformedLongPress = false;
-
-                    if (!clickable) {//非clickable，暂时忽略
-                        checkForLongClick(0, x, y);
+                    if (!clickable) {//可以点击时
+                        removeTapCallback(); //移除 tap的响应
+                        removeLongPressCallback();//移除长按的响应
+                        mInContextButtonPress = false;
+                        mHasPerformedLongPress = false;
+                        mIgnoreNextUpEvent = false;
                         break;
                     }
-                     // 1. 必须先满足是鼠标右键 或是 手写笔第一个按钮，才会返回true(后文详解)
-                    if (performButtonActionOnTouchDown(event)) {
-                        break;
-                    }
-
-                    // 2. 当前视图是否可滚动（例如：当前是ScrollView视图，返回true）
-                    boolean isInScrollingContainer = isInScrollingContainer();
-
-                 
-                    if (isInScrollingContainer) {
-                           // 滚动视图内，先不设置为按下状态，因为用户之后可能是滚动操作(非重点，忽略)
-                        mPrivateFlags |= PFLAG_PREPRESSED;
-                        if (mPendingCheckForTap == null) {
-                            mPendingCheckForTap = new CheckForTap();
+                    boolean prepressed = (mPrivateFlags & PFLAG_PREPRESSED) != 0;
+                    if ((mPrivateFlags & PFLAG_PRESSED) != 0 || prepressed) {
+                        // take focus if we don't have it already and we should in
+                        // touch mode.
+                        boolean focusTaken = false;
+                        if (isFocusable() && isFocusableInTouchMode() && !isFocused()) {
+                            focusTaken = requestFocus();
                         }
-                        mPendingCheckForTap.x = event.getX();
-                        mPendingCheckForTap.y = event.getY();
-                        postDelayed(mPendingCheckForTap, ViewConfiguration.getTapTimeout());
-                    } else {
-                        // Not inside a scrolling container, so show the feedback right away
-                         // 不在滚动视图内，立即反馈为按下状态
-                        setPressed(true, x, y);
-                        checkForLongClick(0, x, y);
-                    }
-                    break;
 
-                case MotionEvent.ACTION_UP:
-                 //在下一篇进行讲解
+                        if (prepressed) {
+                            // The button is being released before we actually
+                            // showed it as pressed.  Make it show the pressed
+                            // state now (before scheduling the click) to ensure
+                            // the user sees it.
+                            setPressed(true, x, y);
+                        }
+
+                        if (!mHasPerformedLongPress && !mIgnoreNextUpEvent) {
+                            // This is a tap, so remove the longpress check
+                            removeLongPressCallback();
+
+                            // Only perform take click actions if we were in the pressed state
+                            if (!focusTaken) {
+                                // Use a Runnable and post this rather than calling
+                                // performClick directly. This lets other visual state
+                                // of the view update before click actions start.
+                                if (mPerformClick == null) {
+                                    mPerformClick = new PerformClick();
+                                }
+                                if (!post(mPerformClick)) {
+                                    performClickInternal();
+                                }
+                            }
+                        }
+
+                        if (mUnsetPressedState == null) {
+                            mUnsetPressedState = new UnsetPressedState();
+                        }
+
+                        if (prepressed) {
+                            postDelayed(mUnsetPressedState,
+                                    ViewConfiguration.getPressedStateDuration());
+                        } else if (!post(mUnsetPressedState)) {
+                            // If the post failed, unpress right now
+                            mUnsetPressedState.run();
+                        }
+
+                        removeTapCallback();
+                    }
+                    mIgnoreNextUpEvent = false;
                     break;
                 case MotionEvent.ACTION_CANCEL:
                 //非探讨重点，暂时忽略
-                    if (clickable) {
-                        setPressed(false);
-                    }
-                    removeTapCallback();
-                    removeLongPressCallback();
-                    mInContextButtonPress = false;
-                    mHasPerformedLongPress = false;
-                    mIgnoreNextUpEvent = false;
-                    mPrivateFlags3 &= ~PFLAG3_FINGER_DOWN;
-                    break;
-
                 case MotionEvent.ACTION_MOVE:
                  //非探讨重点，暂时忽略
                     if (clickable) {
@@ -211,6 +134,8 @@ public boolean dispatchTouchEvent(MotionEvent event) {
                         mPrivateFlags3 &= ~PFLAG3_FINGER_DOWN;
                     }
                     break;
+                 case MotionEvent.ACTION_DOWN:
+                //忽略    
             }
 
             return true;
