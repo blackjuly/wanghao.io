@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      "Android touch Event Dispatch"
+title:      "Android touch Event Dispatch part2"
 subtitle:   "Android 事件分发（理论下篇—— ACTION_MOVE ACTION_UP 发生了什么）"
 date:       2018-11-20 21:36:00
 author:     "wanghao"
