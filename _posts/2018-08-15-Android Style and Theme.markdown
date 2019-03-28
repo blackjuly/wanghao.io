@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Android style & Theme 再探析(一)"
-subtitle:   " 你真的懂Style和Theme吗"
+subtitle:   "定义自己的 Design Support Library"
 date:       2018-08-15 20:25:00
 author:     "wanghao"
 header-img: "img/post-bg-js-module.jpg"

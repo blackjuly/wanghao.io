@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      "Android style & Theme 再探析(四)"
-subtitle:   "业务实践心得总结"
+subtitle:   "业务实践心得总结——Theme 继承链解析(更新自19.03.28)"
 date:       2018-08-17 21:20:00
 author:     "wanghao"
 header-img: "img/post-bg-js-module.jpg"
