@@ -2,7 +2,7 @@
 layout:     post
 title:      "Android touch Event Dispatch part3"
 subtitle:   "Android 事件分发（实战篇—— 处理ScollView和listView的滑动冲突）"
-date:       2018-11-20 21:30:00
+date:       2018-11-24 21:30:00
 author:     "wanghao"
 header-img: "img/post-bg-2015.jpg"
 tags:
