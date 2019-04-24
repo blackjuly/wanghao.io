@@ -295,6 +295,94 @@ public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory 
   final List<Interceptor> networkInterceptors;
 }
 ```
+### 实战篇
+学习源码如果只是将我们看到的源码进行翻译，其实就失去了学习的意义；因为在我们实际生活用不到迟早还是会忘记和没有学习一样；所以，笔者为大家提供几种我在公司中针对拦截器的实际应用方式，让大家感受一下OKHttp通过拦截器的方式给大家提供便利性的作用
+
+#### 招式一： 记录网络信息
+
+##### 背景
+
+笔者的公司在开发过程中经常和后台对接网络接口时，经常会有这样的对话（PS：笔者负责的app对接的接口有对接加密）：
+
+```
+笔者： XXX接口逻辑有问题
+后台： 麻烦把明文的报文和加密的报文都发一下，调试一下
+笔者： xxx接口的request 是.... ,response是.......
+
+```
+##### 方案
+首先，根据上面的场景，看得出我们一般都会有需要时刻获取到每一条请求的明文和密文的情况；所以，一般我们想到的最直接的办法就是解决以上情况的方式就是将request和response的内容都打在控制台上，方便可以随时复制；那么这种场景很明显就可以用**Interceptor**来解决问题，那么这个解决思路如下：
+
+1.根据当前场景，我们要首先有一个对请求响应处理加解密的 application级别的interceptor(ps：加解密只需要进行一次，故不选择网络级别拦截器)
+2.根据我们上文我们可以知道，拦截器链上依此按照每一个拦截器添加的顺序依次执行的，故我们的思路就是在加密拦截器前后各添加一个记录日志的拦截器,从而得到两种请求
+
+代码如下：
+```java
+OkHttpClient client = new OkHttpClient.Builder()
+    //添加了明文的日志拦截器
+    .addInterceptor(new ClearTextLoggingInterceptor())
+    //添加了加解密
+    .addInterceptor(new CodecInterceptor())
+    //添加了密文的日志拦截器
+    .addInterceptor(new EncrypteLoggingInterceptor())
+    .build();
+```
+为了方便理解可以看一下示意图
+
+![日志记录方案示意图](http://img.whdreamblog.cn/okhttp_log_record.png)
+
+由此我们可以感觉到这种责任链的模式给我们提供的对于 request和response的丰富的客户化拓展性，并且我们可以通过这样的方式将我们想要定制化的效果也分工在每一个类中，然后按照顺序依次执行；这样有以下的好处：
+1. 当客户化的功能被拆分在每一个拦截器后，方便用户在后期维护中针对功能的增加或者减少
+2. 提供了每一个类的清晰的可读性，不用把大量的客户化代码都放置到一个类
+
+#### 招式二 用户请求偷天换日李代桃僵
+
+##### 背景
+在笔者在公司以下一系列问题：
+1. 公司由于是to B的业务较多;业务逻辑非常复杂，为我们的app制造数据成了一个成本非常高的问题
+2. 我们的后台人员资源不足导致我们并行开发对接时，接口给到的时间也经常比较晚，造成前端开发人员时间前松后紧
+3. 笔者同时还在负责着一部分的app的自动化测试，同样的数据问题限制着UI自动化的进行，致使脚本运行前会需要做大量准备工作，准备好app需要消费的数据
+
+而业界比较公认的一种解决这类问题的方案就是 **MOCK数据**
+
+但是，当尝试解决此问题时，又有了一只新的拦路虎产生，那就是app的网络请求是**加密**的，并且由于历史原因各个app的加密方案还不一样，这两者造成的伤害就十分巨大了；因为它会产生这样的以下问题：
+1. 如果加密方案是一致的，用一个比较简单粗暴的方式就是将我们的加解密方案，在我们自己搭建的mock平台客户化后移植进去，且针对不同项目还要加解密的key配置不一样的
+2. app要做到多套baseUrl的自由切换，实现mock与真实的请求的互动，又或者可以在wifi中搭建代理服务器帮助切换真实和MOCK的数据，但是两者都具有高昂的成本
+
+#### 方案
+
+所以，基于以上的背景，我们考虑在服务端去解决这样的问题，虽然实现了可以做到客户端无感知，且代码没有入侵性；但是实际上确实付出的代价十分高昂，故我们设计这样的方案：
+
+首先，我们知道
+
+```java
+Response response = client.newCall(request).execute()
+```
+实际是被这样的一层一层的拦截器处理过后，才返回给用户的response
+```java
+    interceptors.addAll(client.interceptors());
+    interceptors.add(new RetryAndFollowUpInterceptor(client));
+    interceptors.add(new BridgeInterceptor(client.cookieJar()));
+    interceptors.add(new CacheInterceptor(client.internalCache()));
+    interceptors.add(new ConnectInterceptor(client));
+    interceptors.addAll(client.networkInterceptors());    
+    interceptors.add(new CallServerInterceptor(forWebSocket));
+```
+而在拦截器中
+```java
+class SomeInterceptor implements Interceptor {
+  @Override public Response intercept(Interceptor.Chain chain) throws IOException {
+    Request request = chain.request();
+    //调用此行代码去链式调用下一个拦截器
+    Response response = chain.proceed(request);
+    return response;
+  }
+```
+所以，我们可以得到一个结论就是，每一个拦截器可以决定我的是否要链式调用下一层的拦截器，同时也可以决定我这一层的拦截器response数据来自哪里，所以我们有了以下的方案：
+
+![mock方案](http://img.whdreamblog.cn/okhttp-mock-plan.png)
+
+
 
 至此，OKhttp最主要的流程就是此部分的内容，欲知后事如何且听下回分解
 
