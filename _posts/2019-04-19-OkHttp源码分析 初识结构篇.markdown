@@ -382,7 +382,51 @@ class SomeInterceptor implements Interceptor {
 
 ![mock方案](http://img.whdreamblog.cn/okhttp-mock-plan.png)
 
+从图上可以看到用户的request经过了一些常规的拦截器后，在我们的加解密拦截器前添加了一个mock拦截器，在判断了用户的请求是否需要走mock后，决定用户的response是从真实网络请求中获取，还是从mock server的平台获取，而这个思路充分体现了 责任链模式中，由责任链的每一环节决定分配的任务是否是由自己处理还是分发给下一层处理，而对调用者来说这些都是透明毫无感知的！
 
+转换成代码
+```java
+class MockInterceptor implements Interceptor {
+  @Override public Response intercept(Interceptor.Chain chain) throws IOException {
+    Request request = chain.request();
+    //判断是否需要mock
+    if(isNeedMock(request)){
+      //读取原始request构建对应的MOCK server的request
+      Request mockRequest = buildMockRequest(request);
+      //访问mockServer
+      return MockServer(mockRequest);
+    }
+    //调用此行代码去链式调用下一个拦截器
+    Response response = chain.proceed(request);
+    return response;
+  }
+
+  private boolean isNeedMock(){
+    /*此方法主要是用来控制哪些request走假数据，哪些request走真实数据，方便开发自己切换;读者可以根据自己需求自行设计，笔者此处仅提供一个思路*/
+  }
+
+  private Request buildMockRequest( Request request){
+    /*该方法的主要作用在于我们要把真实的request替换成访问我们自行搭建的mock server平台的请求，一般是替换掉请求的baseUrl部分（即ip地址部分）；其他的替换根据读者选用的mock平台自行决定
+    */
+  }
+  /**
+  *这一部分的就非常简单了，发送一个网络请求给 mockServer把mockServer的response返回用户
+  **/ 
+  private Response MockServer(Request request) throw Exeption{
+      return client.newCall(request).execute());
+  }    
+```
+此种方案的优劣如下
+优势：
+1. mock平台根据喜欢随便选择，不需要关心加密，也就没有这方面的必要去客户化代码
+2. 真实的接口和mock接口切换靠app端自行代码中随意切换，具体策略由开发自己设计；对于大部分移动端同学来说在自己代码中嵌入一些内容，相比搭建代理服务器在服务器中解决这种问题成本小的多
+3. 基于okhttp的拦截器设计，方便随时随时添加移除；对于调用者却毫无感知
+
+劣势：
+1. 需要在业务代码中嵌入一些方便开发者使用的工具有一定的侵入性和危险性
+2. 跳过了不同app的加密部分的问题；但是每一个要用mockServer的app都需要做相类似的定制化操作，当然这部分可以考虑提取成一个类库方便其他app集成
+
+当然还要搭建一个合适的mock平台，笔者选用的是 [EASY-MOCK](https://github.com/easy-mock/easy-mock),感兴趣的同学可以自行了解下~
 
 至此，OKhttp最主要的流程就是此部分的内容，欲知后事如何且听下回分解
 
