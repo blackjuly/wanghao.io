@@ -70,9 +70,41 @@ public interface Interceptor {
 ```
 chain的接口定义
 ```java
+interface Chain {
+	  /**
+	   * 获取当前处理过后的request
+	   */
+    Request request();
+    /**
+     * 	用于调用拦截器链的下一个对象
+     */
+    Response proceed(Request request) throws IOException;
 
+    /**
+     网络层级拦截器可以获得到 连接，应用层返回空
+     */
+    @Nullable Connection connection();
+    /**
+     * 请求网络收到响应过程的一个抽象出的一个对象
+     */
+    Call call();
+    /**
+     * 各类连接读写超时时间的读取与设置
+     */
+    int connectTimeoutMillis();
+
+    Chain withConnectTimeout(int timeout, TimeUnit unit);
+
+    int readTimeoutMillis();
+
+    Chain withReadTimeout(int timeout, TimeUnit unit);
+
+    int writeTimeoutMillis();
+
+    Chain withWriteTimeout(int timeout, TimeUnit unit);
+  }
 ```
-
+为了强调两者的关联性
 
 ### 同步调用
 我们
