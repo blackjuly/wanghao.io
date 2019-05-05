@@ -135,17 +135,19 @@ public static void main(String[] args) {
 经理批准小头天数15
 ```
 到这里一个简单责任链的设计模式示例就结束了，网上的许多示例到此也就真的结束了；或许比较贴心的文章会告诉读者，我们的责任链的遍历可以有很多种，除了使用链表还可以使用其他数据结构比如使用数组；再贴心一点的文章或许会把数组形式的示例分享出来，可是到底这么多种实现到底有何不同呢？到底其优劣到底是怎样的，场景又是如何呢？今天笔者借着OKhttp的源码希望帮助大家有更直观的认识！
+
 ## RealInterceptorChain分析
 
 首先来看一下我们interceptor和chain的一个定义
 
-拦截器接口定义
+### 拦截器接口定义
 ```java
 public interface Interceptor {
   Response intercept(Chain chain) throws IOException;
 }
 ```
-chain的接口定义
+### chain的接口定义
+
 ```java
 interface Chain {
 	  /**
@@ -181,278 +183,112 @@ interface Chain {
     Chain withWriteTimeout(int timeout, TimeUnit unit);
   }
 ```
-为了强调两者的关联性
 
-### 同步调用
-我们
-GET 示例 
+为了强调两者的强关联性，chain被定义为了一个内部类
+
 ```java
-public class GetExample {
-    //构建一个 OkHttpClient的实例
-  OkHttpClient client = new OkHttpClient();
+public interface Interceptor {
+  //..
+  interface Chain {
+  //..
+  }
+```
 
-  String run(String url) throws IOException {
-      //构建一个 request 网络请求，传入定义的url
-    Request request = new Request.Builder()
-        .url(url)
-        .build();
-    //传入client，调用excute进行执行获取到用户需要的响应
-    try (Response response = client.newCall(request).execute()) {
-      return response.body().string();
-    }
+### RealInterceptorChain实现方式解析
+首先看一下，当前 chain的接口的实现类RealInterceptorChain的构造方法
+```java
+public final class RealInterceptorChain implements Interceptor.Chain {
+  /**
+  *整个责任链由一个数组组成
+  **/ 
+  private final List<Interceptor> interceptors;
+  //利用index指向当前执行到哪一个 interceptors
+  private final int index;
+   /**
+  * 针对拦截器链上的每一个Interceptor都可以很方便读取下方所有的对象，后期添加一些属性时，每一个持有当前
+  chain对象的interceptors都可以读取到
+  **/ 
+  private final Transmitter transmitter;
+  private final @Nullable Exchange exchange;
+  private final Request request;
+  private final Call call;
+  private final int connectTimeout;
+  private final int readTimeout;
+  private final int writeTimeout;
+  private int calls;
+
+  public RealInterceptorChain(List<Interceptor> interceptors, Transmitter transmitter,
+      @Nullable Exchange exchange, int index, Request request, Call call,
+      int connectTimeout, int readTimeout, int writeTimeout) {
+    this.interceptors = interceptors;
+    this.transmitter = transmitter;
+    this.exchange = exchange;
+    this.index = index;
+    this.request = request;
+    this.call = call;
+    this.connectTimeout = connectTimeout;
+    this.readTimeout = readTimeout;
+    this.writeTimeout = writeTimeout;
   }
 }
 ```
-
-POST 示例
-```java
-//定义MediaType 
-public static final MediaType JSON
-    = MediaType.get("application/json; charset=utf-8");
-//初始化 OKhttpClient
-OkHttpClient client = new OkHttpClient();
-
-String post(String url, String json) throws IOException {
-  //针对requestBody进行初始化
-  RequestBody body = RequestBody.create(JSON, json);
-  //传入对应的url和body，构建
-  Request request = new Request.Builder()
-      .url(url)
-      .post(body)
-      .build();
-      Call call = client.newCall(request);
-  try (Response response = call.execute()) {
-    return response.body().string();
-  }
-}
-```
-## 初识OKhttp
-首先，了解了上文的示例，我们对于OKhttp的API调用有了一个初步的认识，接下来简单介绍一下我们刚才所用到一些类
-
-
-okhttpClient的说明图,request说明图，response说明图，call说明图
-
-
-由此我们便可以初步的了解了OkHttp的简单调用和与用户最常打交道的几个类；接下来我们针对上文的示例代码做一个初步的流程分析，让大家有一个简单对于OKhttp的工作流程有一个大致的了解
-
-![okhttp示意图](http://img.whdreamblog.cn/OKhttpVerySimpleFlowDiagram.png)
-
-所以，通过此图我们可以大致的了解到关于OKhttp最粗略的一个流程，在call中有一个execute的方法；而其中最核心的就是这个方法 ;所有的网络请求的整个处理核心就在这个部分；所以接下来我们的重心就是这里
-
-## Interceptor
-在分析前我们需要了解一下OKhttp在框架中引入的一个概念 [interceptor](https://github.com/square/okhttp/wiki/Interceptors) (拦截器)，它的作用机制非常强大，可以监控，重写，重复调用；借用官网的一个示例简单了解一下用法
-
-```java
-class LoggingInterceptor implements Interceptor {
-  @Override public Response intercept(Interceptor.Chain chain) throws IOException {
-      //获取拦截器链中的request
-    Request request = chain.request();
-    //记录 request相关信息
-    long t1 = System.nanoTime();
-    logger.info(String.format("Sending request %s on %s%n%s",
-        request.url(), chain.connection(), request.headers()));
-
-    Response response = chain.proceed(request);
-
-    long t2 = System.nanoTime();
-    logger.info(String.format("Received response for %s in %.1fms%n%s",
-        response.request().url(), (t2 - t1) / 1e6d, response.headers()));
-
-    return response;
-  }
-}
-```
-此为一个日志拦截器的定义，而这个拦截器最关键的部分就是 **chain.proceed(request)**这个就是我们的http交互产生对应当前的request的response的部分；这些拦截器会被串联起来依照顺序依次调用，此处引用下官方文档说明:
-
->A call to chain.proceed(request) is a critical part of each interceptor’s implementation. This simple-looking method is where all the HTTP work happens, producing a response to satisfy the request.
-
->对chain.proceed(请求)的调用是每个拦截器实现的关键部分。这个看起来很简单的方法是所有HTTP工作发生的地方，它生成一个响应来满足请求。
-
->Interceptors can be chained. Suppose you have both a compressing interceptor and a checksumming interceptor: you'll need to decide whether data is compressed and then checksummed, or checksummed and then compressed. OkHttp uses lists to track interceptors, and interceptors are called in order.
-
->拦截器可以链接。假设您同时拥有压缩拦截器和校验和拦截器：您需要确定数据是否已压缩，然后进行校验和，校验和再压缩。 OkHttp使用列表来跟踪拦截器，并按顺序调用拦截器。
-
-
-然后，大概了解一下两个概念，就是 OKhttp提供了两种拦截器 :
-![interceptors](https://raw.githubusercontent.com/wiki/square/okhttp/interceptors@2x.png)
-
-1. 应用级别拦截器：只会调用一次，获取到最终的response结果
-2. 网络级别拦截器：可以感知到网络的请求的重定向，以及重试会被执行多次
-
-引用两个代码示例，让我们简单感受一下两者的区别,具体示例代码详细分析可以查看 [interceptors](https://github.com/square/okhttp/wiki/Interceptors)
-
-### 应用级别拦截器
-
-```java
-OkHttpClient client = new OkHttpClient.Builder()
-//添加了上文的日志拦截器 (应用级别拦截器)
-    .addInterceptor(new LoggingInterceptor())
-    .build();
-//添加url以及header
-Request request = new Request.Builder()
-    .url("http://www.publicobject.com/helloworld.txt")
-    .header("User-Agent", "OkHttp Example")
-    .build();
-
-Response response = client.newCall(request).execute();
-response.body().close();
-```
-结果展示：
-
-```
-INFO: Sending request http://www.publicobject.com/helloworld.txt on null
-User-Agent: OkHttp Example
-
-INFO: Received response for https://publicobject.com/helloworld.txt in 1179.7ms
-Server: nginx/1.4.6 (Ubuntu)
-Content-Type: text/plain
-Content-Length: 1759
-Connection: keep-alive
-```
-从结果可以发现，我们的是得到一个最终的结果
-### 网络级别拦截器
-
-```java
-OkHttpClient client = new OkHttpClient.Builder()
-//添加了上文的日志拦截器 (网络级别拦截器)
-    .addNetworkInterceptor(new LoggingInterceptor())
-    .build();
-
-Request request = new Request.Builder()
-    .url("http://www.publicobject.com/helloworld.txt")
-    .header("User-Agent", "OkHttp Example")
-    .build();
-
-Response response = client.newCall(request).execute();
-response.body().close();
-```
-结果展示:
-```
-INFO: Sending request http://www.publicobject.com/helloworld.txt on Connection{www.publicobject.com:80, proxy=DIRECT hostAddress=54.187.32.157 cipherSuite=none protocol=http/1.1}
-User-Agent: OkHttp Example
-Host: www.publicobject.com
-Connection: Keep-Alive
-Accept-Encoding: gzip
-
-INFO: Received response for http://www.publicobject.com/helloworld.txt in 115.6ms
-Server: nginx/1.4.6 (Ubuntu)
-Content-Type: text/html
-Content-Length: 193
-Connection: keep-alive
-Location: https://publicobject.com/helloworld.txt
-
-INFO: Sending request https://publicobject.com/helloworld.txt on Connection{publicobject.com:443, proxy=DIRECT hostAddress=54.187.32.157 cipherSuite=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA protocol=http/1.1}
-User-Agent: OkHttp Example
-Host: publicobject.com
-Connection: Keep-Alive
-Accept-Encoding: gzip
-
-INFO: Received response for https://publicobject.com/helloworld.txt in 80.9ms
-Server: nginx/1.4.6 (Ubuntu)
-Content-Type: text/plain
-Content-Length: 1759
-Connection: keep-alive
-```
-
-从此结果可以看到，我们每次网络发生比如上文的重定向的情况，都可以清楚的感知到 ；初始的一次请求的是**http://www.publicobject.com/helloworld.txt**，另外一次重定向到了 **https://publicobject.com/helloworld.txt.**
-
-## 核心主流程分析——拦截器组合使用
-上文我们知道了拦截器这个概念，实际上OKhttp不仅提供用户可以编辑的添加的Interceptor，实际上整个的OKhttp的网络请求整体都是通过一个个的拦截器分层完成的，那么接下来我们把上面的示意图再次拓展更详细些
-
-![okhttp简单示意图](http://img.whdreamblog.cn/OKhttp%20simple%20diagram.jpg)
-
-那么来根据此示意图可以看的出，其实我们的网络请求的过程被分解成了一个个的步骤分别分工在每一个类里面去执行，每一个类只负责自己部分工作内容，也就是我们常说的责任链模式([chain-of-responsibility-pattern](http://www.runoob.com/design-pattern/chain-of-responsibility-pattern.html))并且还在责任链的两个位置提供添加用户的自定义拦截器由此方便针对request和response进行各种自定义的处理，接下来我们来看一下源码部分的实现：
-首先是用户调用部分：
-
-用户定义了request，传入了定义好的一个client；并且调用了execute方法
-```java
-//定义client
-OkHttpClient client = new OkHttpClient.Builder()
-//添加用户的拦截器
-    .addInterceptor(new LoggingInterceptor())
-    .addNetworkInterceptor(new LoggingInterceptor())
-    .build();
-    //开始执行网络请求
- try (Response response = client.newCall(request).execute()) {
-    return response.body().string();
-  }
-```
-调用了此时execute最核心的代码：
-```java
- @Override public Response execute() throws IOException {
-    synchronized (this) {
-        //暂时忽略部分
-      //执行响应链
-      return getResponseWithInterceptorChain();
-        //暂时忽略部分  
-  }
-```
-拦截器链的调用：
+由以上代码结合上篇 OkHttp源码分析 初识结构篇(一)的知识，我们可以看到okHttp实际核心就是
 ```java
  Response getResponseWithInterceptorChain() throws IOException {
-    // Build a full stack of interceptors.
-    List<Interceptor> interceptors = new ArrayList<>();
-    //重试之前添加的拦截器，由于 重试层将网络请求全部处理完毕后，才返回；所以是无感知的，用户的拦截器只会得到一个结果
-    interceptors.addAll(client.interceptors());
-    //重试重定向拦截器
-    interceptors.add(new RetryAndFollowUpInterceptor(client));
-    //给request添加网络请求必须的header,处理request的response的压缩和解压缩
-    interceptors.add(new BridgeInterceptor(client.cookieJar()));
-    //处理网路的缓存的部分
-    interceptors.add(new CacheInterceptor(client.internalCache()));
-    //创建或者从连接池中找到合适的安全的连接
-    interceptors.add(new ConnectInterceptor(client));
-    if (!forWebSocket) {
-    	//网络层的拦截器，由于在重试层之下；所以，每次的重试重定向都会有感知，并且所以此时用户添加的 网络级别的 拦截器 就会调用多次
-      interceptors.addAll(client.networkInterceptors());
-    }
-    //执行实际的io流，request和resopnse的接收
-    interceptors.add(new CallServerInterceptor(forWebSocket));
-    //定义 串联拦截的链对象，将拦截器串联起来
-    Interceptor.Chain chain = new RealInterceptorChain(interceptors, transmitter, null, 0,
+    //定义拦截器数组
+     List<Interceptor> interceptors = new ArrayList<>();
+    //添加拦截器
+     interceptors.addAll(client.interceptors());
+     interceptors.add(new SomeOkHttpInterceptor());
+     interceptors.addAll(client.networkInterceptors());
+    //使用 chain将链串联起来
+    Interceptor.Chain chain = new RealInterceptorChain(interceptors, transmitter, null, 
+    //传入index
+    0,
         originalRequest, this, client.connectTimeoutMillis(),
         client.readTimeoutMillis(), client.writeTimeoutMillis());
-
-      //忽略
-    try {
-    	//依次执行拦截器
+        //触发第一个拦截器
       Response response = chain.proceed(originalRequest);
-      //忽略
+ }
+```
+利用数组和一个index依次遍历执行，每一个interceptor在进入 intercept方法体后
+```java
+private static class LoggingInterceptor implements Interceptor {
+    @Override public Response intercept(Chain chain) throws IOException {
+      long t1 = System.nanoTime();
+      //获取到request
+      Request request = chain.request();
+      //获取到 url,connection，header等
+      logger.info(String.format("Sending request %s on %s%n%s",
+          request.url(), chain.connection(), request.headers()));
+
+      Response response = chain.proceed(request);
+
+      long t2 = System.nanoTime();
+      logger.info(String.format("Received response for %s in %.1fms%n%s",
+          request.url(), (t2 - t1) / 1e6d, response.headers()));
       return response;
-    } catch (IOException e) {
-     //忽略
-    } finally {
-      //忽略
-    
     }
-  } 
-```
-然后，需要补充说明一点的是：
+  }
+``` 
+由上文的 LoggingInterceptor可以看到，我们可以通过chain得到一切okhttp想开放给我们的对象，非常便利方便！
 
-上面在**getResponseWithInterceptorChain()**调用中
->interceptors.addAll(client.interceptors());
-
-以及
-
->interceptors.addAll(client.networkInterceptors());
-
-都是在上述代码：
+## chain.proceed(request)解析
+上面看完一个Chain类构造和遍历拦截器的思路，那么接下来我们快速看一下代码实现(排除保护异常情况的代码)
 ```java
-OkHttpClient client = new OkHttpClient.Builder()
-//添加用户的拦截器
-    .addInterceptor(new LoggingInterceptor())
-    .addNetworkInterceptor(new LoggingInterceptor())
-    .build();
-
-```
-由用户添加进来的
-被okHttpClient缓存到了自己的成员变量中
-```java
-public class OkHttpClient implements Cloneable, Call.Factory, WebSocket.Factory {
-    final List<Interceptor> interceptors;
-  final List<Interceptor> networkInterceptors;
+public Response proceed(Request request) throws IOException {
+  // 创建新的chain类  Call the next interceptor in the chain.
+    RealInterceptorChain next = new RealInterceptorChain(interceptors, transmitter, exchange,
+        index + 1, request, call, connectTimeout, readTimeout, writeTimeout);
+    //取出当前拦截器对象
+    Interceptor interceptor = interceptors.get(index);
+    //将构造好的下一个chain传递给interceptor
+    Response response = interceptor.intercept(next);
+     //返回最终的response
+    return response;
 }
 ```
+
 ### 实战篇
 学习源码如果只是将我们看到的源码进行翻译，其实就失去了学习的意义；因为在我们实际生活用不到迟早还是会忘记和没有学习一样；所以，笔者为大家提供几种我在公司中针对拦截器的实际应用方式，让大家感受一下OKHttp通过拦截器的方式给大家提供便利性的作用
 
