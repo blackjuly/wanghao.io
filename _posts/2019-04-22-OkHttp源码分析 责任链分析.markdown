@@ -36,26 +36,103 @@ tags:
 做出的一个UML图就是这个样子
 
 ![示例demo UML](xxx)
-
+定义一个请假请求类
+```java
+public  class LeaveRequest {
+	String empName;
+	int leaveDays;
+	String reason;
+	public LeaveRequest(String empName, int leaveDays, String reason) {
+		super();
+		this.empName = empName;
+		this.leaveDays = leaveDays;
+		this.reason = reason;
+	}
+  //省略getter setter
+}  
+```
 根据以上场景抽象出一个leader的抽象类是这样的：
 ```java
+public abstract class Leader {
+	protected String name;
+	protected Leader nextleader;
+	public Leader(String name) {
+		super();
+		this.name = name;
+	}
+  /**
+    *定义抽象类处理请求
+  **/
+	public abstract void handleRequest(LeaveRequest request);
+	public Leader getLeader() {
+		return nextleader;
+	}
+
+	public void setLeader(Leader leader) {
+		this.nextleader = leader;
+	}
+}
 
 ```
 接下来我们简单定义实现类：
 主任
 ```java
+public class Director extends Leader {
+
+	public Director(String name) {
+		super(name);
+	}
+	@Override
+	public void handleRequest(LeaveRequest request) {
+		if(request.getLeaveDays() <10){
+			System.out.println("主任批准"+request.empName+"天数"+request.leaveDays);
+		}else {
+			Objects.requireNonNull(request);
+			Objects.requireNonNull(nextleader);
+			nextleader.handleRequest(request);
+		}
+	}
+
+}
 ```
 经理
 ```java
-```
-总经理
-```java
+public class Manager extends Leader {
+
+	public Manager(String name) {
+		super(name);
+	}
+	@Override
+	public void handleRequest(LeaveRequest request) {
+		if(request.getLeaveDays() <30){
+			System.out.println("经理批准"+request.empName+"天数"+request.leaveDays);
+		}else {
+			System.out.println("是不是不想干了");
+		}
+	}
+
+}
 ```
 调用示例
 ```java
+public static void main(String[] args) {
+		LeaveRequest request = new LeaveRequest("大头", 6, "回家乡");
+		LeaveRequest request2 = new LeaveRequest("小头", 15, "去台湾");
+		//创建责任链的类
+		Director director = new Director("王大佬");
+		Manager manager = new Manager("李大佬");
+		//将类通过setter关联起来
+		director.setLeader(manager);
+		//从责任链第一个类调用起来，将request传入
+		director.handleRequest(request);
+		director.handleRequest(request2);
+	}
+
 ```
 结果：
 ```
+主任批准大头天数6
+经理批准小头天数15
 ```
 到这里一个简单责任链的设计模式示例就结束了，网上的许多示例到此也就真的结束了；或许比较贴心的文章会告诉读者，我们的责任链的遍历可以有很多种，除了使用链表还可以使用其他数据结构比如使用数组；再贴心一点的文章或许会把数组形式的示例分享出来，可是到底这么多种实现到底有何不同呢？到底其优劣到底是怎样的，场景又是如何呢？今天笔者借着OKhttp的源码希望帮助大家有更直观的认识！
 ## RealInterceptorChain分析
