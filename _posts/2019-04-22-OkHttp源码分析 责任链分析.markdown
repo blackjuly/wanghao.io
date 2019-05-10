@@ -294,6 +294,50 @@ public Response proceed(Request request) throws IOException {
 
 我们可以看到两者一个思路区别，示例demo使用了链表的形式，Okhttp是采用了数组的形式；那么两者的实战使用上会有一个怎样的优劣取舍呢？下面我们来根据OKhttp的场景的需求分析一下：
 
+OKHTTP:
+
+* 由于设计整个OKhttp的核心都是由拦截器搭建而成，所以要大量有new interceptor()被调用；而无论用户的还是OKhttp自己部分的拦截器显然使用链表非常不便大量添加
+```java
+     //类似这样的addAll操作
+    interceptors.addAll(client.interceptors());
+    interceptors.add(new RetryAndFollowUpInterceptor(client));
+    interceptors.add(new BridgeInterceptor(client.cookieJar()));
+    interceptors.add(new CacheInterceptor(client.internalCache()));
+    interceptors.add(new ConnectInterceptor(client));
+    //类似这样的addAll操作
+    interceptors.addAll(client.networkInterceptors());
+    interceptors.add(new CallServerInterceptor(forWebSocket));
+```
+* 每一个拦截器都要可以共享一些数据，比如读写超时，当前的socket相关内容详情可以见上文的LoggingInterceptor，展示出了很多interceptor可以调用到的对象，也很方便后期再添加更多的对象,并且像OKhttp是定义interceptors为接口
+```java
+public interface Interceptor {
+  Response intercept(Chain chain) throws IOException;
+}
+```
+如果用类似demo示例那种抽象类，传值修改构造方法无疑要大动干戈，而OKhttp的做法是怎样的呢？
+```java
+public RealInterceptorChain(List<Interceptor> interceptors, Transmitter transmitter,
+      @Nullable Exchange exchange, int index, Request request, Call call,
+      int connectTimeout, int readTimeout, int writeTimeout) {
+        //忽略赋值成员变量
+  }
+```
+定义chain对象，将需要共享的元素封装到一个chain中，将chain传入interceptor让其数据包裹chain中，避免其因为数据的增加而频繁改动代码，类似[Visitor Pattern]("https://www.runoob.com/design-pattern/visitor-pattern.html")，当需要改动增加共享的数据时，只需要改动chain的构造方法，而这个chain的创建只有
+```java
+ Response getResponseWithInterceptorChain() throws IOException {
+   Interceptor.Chain chain = new RealInterceptorChain(interceptors, transmitter, null, 0,
+        originalRequest, this, client.connectTimeoutMillis(),
+        client.readTimeoutMillis(), client.writeTimeoutMillis());
+
+ }
+```
+在getResponseWithInterceptorChain()这个方法作为驱动第一个拦截器回调需要创建一次后，剩下的都是在chain的内部调用构造方法创建，改动量的成本都是极小的
+
+
+
+
+
+
 
 
 
