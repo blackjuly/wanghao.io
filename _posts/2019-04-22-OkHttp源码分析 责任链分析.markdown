@@ -292,6 +292,9 @@ public Response proceed(Request request) throws IOException {
 
 ## 思路对比
 
+### 数组形式实现
+
+#### 数组方式优点：
 我们可以看到两者一个思路区别，示例demo使用了链表的形式，Okhttp是采用了数组的形式；那么两者的实战使用上会有一个怎样的优劣取舍呢？下面我们来根据OKhttp的场景的需求分析一下：
 
 OKHTTP:
@@ -331,29 +334,57 @@ public RealInterceptorChain(List<Interceptor> interceptors, Transmitter transmit
 
  }
 ```
-在getResponseWithInterceptorChain()这个方法作为驱动第一个拦截器回调需要创建一次后，剩下的都是在chain的内部调用构造方法创建，改动量的成本都是极小的
+在getResponseWithInterceptorChain()这个方法作为驱动第一个拦截器回调需要创建一次后，剩下的都是在chain的内部调用构造方法创建，改动量的成本都是极小的！
 
+### 链表形式实现
 
+#### java.util.logging.Logger#log()
+来一段简易代码快速了解一下
+```java
+public void log(LogRecord record) {
+        //部分代码忽略
 
+        Logger logger = this;
+        //不断循环获取 logger的父节点，直到获取到系统定义的logger，即最终的root logger
+        while (logger != null) {
+          //取出logger中的handler，将一条一条的日志记录推进去，处理输出到各个地方
+            final Handler[] loggerHandlers = isSystemLogger
+                ? logger.accessCheckedHandlers()
+                : logger.getHandlers();
 
+            for (Handler handler : loggerHandlers) {
+                handler.publish(record);
+            }
+            //部分代码忽略
 
+            logger = isSystemLogger ? logger.parent : logger.getParent();
+        }
+    }
+ //日志信息抽象出的一个对象，记录日志的级别，名字，内容等   
+ class LogRecord{
+    //忽略
+ }   
+ //可以理解成是 用于处理日志输出到哪里为抽象类 继承可以输出到比如 控制台，文件，网页上
+ abstract class  Handler{
+   //忽略
+ }  
 
+```
+虽然logger在jdk中的数据结构是一个树状的，但是，每一条日志都会经过上述该方法，从我们用户定义的子节点logger一直遍历回到系统定义的根节点；其实笔者认为就是一个简单 责任链设计模式，将日志记录不断分发到每一层级，做不同的输出
+#### 链表形式优点：
+* 结构简单，不需要维护多余的类，适用于责任链长度不会过长的情况
 
+很明显我们一般的输出日志的情况，文件流，控制台，最多可能我们需要自定义输出到网页上远程查看，故形式不会过于多样，甚至大多情况我们使用系统自带的就基本够用了！所以层级不会过深，不存在需要大量添加的情况，故能够做到维护更少的内容，结构简单使用链表足矣！
 
-
-
-
-
-
-
+## 实战中的使用反例
+待完成..........
 ## NEW FEATURE
-1. 责任链**RealInterceptorChain**如何实现对于拦截器的串联
-2. RetryAndFollowUpInterceptor重试重定向的分析
-3. BridgeInterceptor的分析
-4. CacheInterceptor缓存机制分析
-5. ConnectInterceptor连接复用相关分析
-6. CallServerInterceptor实际IO操作分析
-7. OKhttp同步与异步calls的调用管理分析
+1. RetryAndFollowUpInterceptor重试重定向的分析
+2. BridgeInterceptor的分析
+3. CacheInterceptor缓存机制分析
+4. ConnectInterceptor连接复用相关分析
+5. CallServerInterceptor实际IO操作分析
+6. OKhttp同步与异步calls的调用管理分析
 
 
 
