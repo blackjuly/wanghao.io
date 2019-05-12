@@ -35,7 +35,7 @@ tags:
 ```
 做出的一个UML图就是这个样子
 
-![示例demo UML](xxx)
+![示例demo UML](http://img.whdreamblog.cn/LeaveRequestAndLeader.jpg)
 定义一个请假请求类
 ```java
 public  class LeaveRequest {
