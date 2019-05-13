@@ -393,19 +393,19 @@ public void log(LogRecord record) {
 
 首先，是司机抢到订单，进入自己的订单详情界面，然后就是部分需求，一图以蔽之
 
-![需求图](http://img.whdreamblog.cn/orderNeed2.png) 
+![需求图](http://img.whdreamblog.cn/myorderneed3.png) 
 
 大家不用很细致的了解，简单概括就是订单详情界面包含大量更新订单状态操作与交付，里面设有有很多弹窗形式表单需要司机在不同订单状态下确认或填写很多订单相关信息。
 
 ### 错误的设计思路
 由于每一个订单状态下，app的交互由上图可知都是弹出不同弹窗，以及一些不同状态下展示的一些小按钮，将每一步的交互抽象成一组统一的类用链表串联起来，我理想的状态是这样的
-![链表图](http://img.whdreamblog.cn/myideaaboutorderneed.png)
+![链表图](http://img.whdreamblog.cn/myideaaboutorderneed1.png)
 因为司机违约的情况属于别的界面，故想只把上图这部分内容抽象为一个 责任链形式，每一个链条就是 一个订单状态下，该订单详情界面所有的交互抽象成的一个对象
 
 ### 实际的现实情况
 但是，实际上初识设计模式的我完全没有考虑一个很明显的点就是，现实中订单的状态应该是下图
 
-![现实的订单状态图](http://img.whdreamblog.cn/realorderneed.png)
+![现实的订单状态图](http://img.whdreamblog.cn/realorderneed1.png)
 
 设计问题：
 
