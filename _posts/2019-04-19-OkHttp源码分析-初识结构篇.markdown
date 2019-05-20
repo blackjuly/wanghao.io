@@ -442,6 +442,7 @@ class MockInterceptor implements Interceptor {
 5. ConnectInterceptor连接复用相关分析
 6. CallServerInterceptor实际IO操作分析
 7. OKhttp同步与异步calls的调用管理分析
+8. DNS简析
 
 
 

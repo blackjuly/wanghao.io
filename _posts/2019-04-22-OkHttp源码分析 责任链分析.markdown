@@ -432,6 +432,7 @@ public void log(LogRecord record) {
 4. ConnectInterceptor连接复用相关分析
 5. CallServerInterceptor实际IO操作分析
 6. OKhttp同步与异步calls的调用管理分析
+7. DNS简析
 
 
 
