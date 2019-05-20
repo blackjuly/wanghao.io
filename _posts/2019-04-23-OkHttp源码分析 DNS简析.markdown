@@ -103,9 +103,10 @@ public interface Dns {
 由于涉及许多类合作，故笔者只简单介绍核心部分的一个思路
 
 ```java
+
 public class Example {
-  // 1. 有一个可以控制环境的变量的开关 
- public static String flag = "dev"; 
+   
+ public static String flag = "dev";//1. 有一个可以控制环境的变量的开关 
 OkHttpClient.Builder builder = new OkHttpClient.Builder();
 	  builder.dns(new Dns() {
 		
