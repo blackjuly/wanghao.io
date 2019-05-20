@@ -101,6 +101,7 @@ public interface Dns {
 基于以上分析，笔者想到了使用定制我们的okhttp的dns解析类，耦合与OKHTTP框架层面，基于上文我们可以知道定制主要就是覆盖重写一个类，所以，只要在不需要该类的情况下移除该类即可
 #### 方案具体实现
 由于涉及许多类合作，故笔者只简单介绍核心部分的一个思路
+
 ```java
 public class Example {
   // 1. 有一个可以控制环境的变量的开关 
@@ -148,7 +149,8 @@ OkHttpClient.Builder builder = new OkHttpClient.Builder();
     }
 	});
 
-}  
+} 
+
 ```
 
 #### 方案劣势
