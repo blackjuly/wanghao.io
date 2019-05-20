@@ -159,18 +159,23 @@ release: http://b.com/simpleProject/api/login
 ```
 比如以下几种不规范情况就不行了
 * 项目被修改
+
 ```
 dev: http://a.com/simpleProject/api/login
 release: http://b.com/simpleProject1/api/login
 ```
+
 * http和https混用
+
 ```
 dev: http://a.com/simpleProject/api/login
 release: https://b.com/simpleProject/api/login
 ```
+
 故仍有一定局限性
 
 ### HTTPDNS的定制使用
+
 首先，由于HTTPDNS搭建涉及面很广，无法用简单一个示例展示清楚，故只做一个简单科普性质的分享，提供读者一个解决问题的思路！
 
 #### 传统dns的痛点
