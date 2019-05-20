@@ -153,21 +153,22 @@ OkHttpClient.Builder builder = new OkHttpClient.Builder();
 #### 方案劣势
 当然此方案也有有一定劣势，就是url多个环境一定要除了域名以前其他都是一致的
 例如：
-```
+```xml
 dev: http://a.com/simpleProject/api/login
 release: http://b.com/simpleProject/api/login
 ```
 比如以下几种不规范情况就不行了
 * 项目被修改
 
-```
+```xml
 dev: http://a.com/simpleProject/api/login
 release: http://b.com/simpleProject1/api/login
+
 ```
 
 * http和https混用
 
-```
+```xml
 dev: http://a.com/simpleProject/api/login
 release: https://b.com/simpleProject/api/login
 ```
