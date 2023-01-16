@@ -1,0 +1,53 @@
+---
+layout:     post
+title:      "I AM BACK"
+subtitle:   " \"Hello World, Hello Blog\""
+date:       2023-01-16 23:00:00
+author:     "wanghao"
+header-img: "img/post-bg-2015.jpg"
+tags:
+    - 生活
+---
+
+> “2022年就这么过去，过的好苦，发生了好多，又好像什么也没发生过”
+
+
+## 前言
+
+新的一年，我想重新回归书写文字，回归写作，希望写作可以给我力量！
+
+
+
+---
+
+## 正文
+
+新的一年回来以后，很多证书都过期了，重新记录一下如何配置博客 
+
+### 重新构建jeklly项目 
+登录 https://coding.net/
+
+![构建jeklly](https://img.whdreamblog.cn/2023/20230116232305.png)
+
+选择立即构建，即可重新再次部署
+![立即构建](https://img.whdreamblog.cn/2023/20230116232547.png)
+
+### 配置腾讯云七牛云https
+
+1. 在腾讯云中配置更换新的https
+2. 在七牛云上传自定义证书
+3. 重启图片域名
+
+[上传证书参考文章](https://juejin.cn/post/6844904114627805192)
+
+### 配置picgo
+
+[pic-go地址](https://github.com/Molunerfinn/PicGo/releases)
+
+注意: 存储区域：七牛云的存储区域（华东 z0，华北 z1，华南 z2，北美 na0，东南亚 as0 ），根据你空间所在的区域，填对应的代码
+
+[参考配置博客](https://segmentfault.com/a/1190000038949193)
+
+### 配置博客评论功能
+
+https://livere.com/
