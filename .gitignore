@@ -4,3 +4,10 @@ node_modules
 */.DS_Store
 */*/.DS_Store
 *.sh
+.idea/easyCodeTableSetting.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/wanghao.io.iml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/.gitignore
