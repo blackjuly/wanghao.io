@@ -81,3 +81,9 @@ https://console.cloud.tencent.com/cdn/domains
 ![证书配置界面](http://img.whdreamblog.cn/2023/20230117145014.png)
 
 否则博客的地址栏会爆出红色
+
+### cdn缓存刷新
+
+注意，如果域名的页面迟迟没有刷新可以考虑手动再cdn控制台选择手动刷新
+
+![刷新cdn缓存](http://img.whdreamblog.cn/2023/20230117153630.png)
