@@ -55,3 +55,29 @@ tags:
 ### 配置博客评论功能
 
 https://livere.com/
+
+### 重新在腾讯云serverless配置域名
+
+https://coding.net/help/docs/pages/operating.html 
+
+通过配置cdn加速域名，实现自定义serverless域名
+![配置cdn加速域名](http://img.whdreamblog.cn/2023/20230117143759.png)
+[官方文档自定义域名](https://cloud.tencent.com/document/product/1154/41321)
+
+但是实际配置时
+![发生报错](http://img.whdreamblog.cn/2023/20230117144012.png)
+
+> UnauthorizedOperation.CdnDomainRecordNotVerified 域名解析未进行验证
+
+最终提交工单发现需要 cdn部分添加，域名以及验证
+https://cloud.tencent.com/document/product/228/61702
+
+
+cdn控制台地址：
+https://console.cloud.tencent.com/cdn/domains
+![在cdn控制台添加域名](http://img.whdreamblog.cn/2023/20230117144744.png)
+
+记得如果配置的是https，需要在证书管理下面配置新的申请的免费证书
+![证书配置界面](http://img.whdreamblog.cn/2023/20230117145014.png)
+
+否则博客的地址栏会爆出红色
