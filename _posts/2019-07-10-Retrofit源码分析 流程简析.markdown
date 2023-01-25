@@ -1,7 +1,7 @@
 ---
 layout:     post
-title:      " Rtrofit解析"
-subtitle:   " " Rtrofit源码系列分析""
+title:      "Rtrofit解析"
+subtitle:   "Rtrofit源码系列分析"
 date:       2019-07-10 10:30:00
 author:     "wanghao"
 header-img: "img/post-bg-2015.jpg"
@@ -10,6 +10,7 @@ tags:
     - 源码
     - Rtrofit
 ---
+
 # Rtrofit解析
 
 ## 背景
