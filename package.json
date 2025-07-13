@@ -2,7 +2,7 @@
     "name": "WangHao-blog",
     "title": "WangHao Blog",
     "version": "1.0.1",
-    "homepage": "http://www.whdreamblog.cn/",
+    "homepage": "https://blackjuly.github.io/wanghao.io/",
     "author": "WangHao",
     "devDependencies": {
         "grunt": "~0.4.5",
