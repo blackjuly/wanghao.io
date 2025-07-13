@@ -5,8 +5,8 @@ header-img: img/home-bg.jpg
 email: blackjuly@outlook.com
 description: "只有经理地狱的折磨，才有征服天堂的力量"
 keyword: "wanghao,WangHao,WangHao Blog,Android,JAVA,Web,Linux,个人网站，博客，互联网，移动端,昊 de BLOG"
-url: "https://blackjuly.github.io/wanghao.io/"              # your host, for absolute URL
-baseurl: ""         # for example, '/blog' if your blog hosted on 'host/blog'
+url: "https://blackjuly.github.io"              # your host, for absolute URL
+baseurl: "/wanghao.io"         # for example, '/blog' if your blog hosted on 'host/blog'
 
 
 
