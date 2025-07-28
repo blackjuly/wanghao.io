@@ -13,7 +13,7 @@ baseurl: "/wanghao.io"         # for example, '/blog' if your blog hosted on 'ho
 # SNS settings
 RSS: false
 #weibo_username:     wanghao
-zhihu_username:     wang-hao-38-69
+#zhihu_username:     wang-hao-38-69
 github_username:    blackjuly
 #twitter_username:  blackjuly
 #facebook_username:  blackjuly
